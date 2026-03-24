@@ -1,3 +1,4 @@
+
 // app/gioi-thieu/page.tsx
 import type { Metadata } from "next";
 
@@ -41,6 +42,34 @@ const METHODS = [
   { step: "02", title: "Thiết kế", desc: "Đề xuất giải pháp tối ưu." },
   { step: "03", title: "Triển khai", desc: "Lắp đặt & chạy thử." },
   { step: "04", title: "Đồng hành", desc: "Bảo trì & nâng cấp." },
+];
+
+/* ===== PRO TESTIMONIALS ===== */
+const TESTIMONIALS = [
+  {
+    name: "Xưởng bánh kẹo – Hà Nội",
+    content:
+      "Sau khi triển khai hệ thống đóng gói, bên mình giảm ~30% thời gian vận hành. Đội kỹ thuật hỗ trợ rất nhanh khi cần.",
+    rating: 5,
+  },
+  {
+    name: "Doanh nghiệp thực phẩm – Bình Dương",
+    content:
+      "Giải pháp phù hợp, giúp tối ưu chi phí nhân công đáng kể. Quy trình triển khai rõ ràng.",
+    rating: 5,
+  },
+  {
+    name: "Xưởng chế biến nông sản – Đà Lạt",
+    content:
+      "Hệ thống vận hành ổn định, dễ sử dụng. Bên mình đánh giá cao khâu bảo trì.",
+    rating: 4,
+  },
+  {
+    name: "Cơ sở sản xuất nhỏ – TP.HCM",
+    content:
+      "Dễ vận hành, phù hợp quy mô nhỏ. Có thể nâng cấp thêm giao diện quản lý.",
+    rating: 4,
+  },
 ];
 
 export const metadata: Metadata = {
@@ -93,7 +122,7 @@ export default function AboutPage() {
           {STATS.map((s) => (
             <div
               key={s.label}
-              className="bg-white/90 backdrop-blur border border-gray-200 rounded-xl p-6 text-center shadow-sm hover:shadow-xl transition"
+              className="bg-white/90 border border-gray-200 rounded-xl p-6 text-center shadow-sm hover:shadow-xl transition"
             >
               <div className="text-[26px] font-semibold text-[var(--color-accent)]">
                 {s.value}
@@ -101,52 +130,6 @@ export default function AboutPage() {
               <div className="text-sm text-gray-600">{s.label}</div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ===== VALUES ===== */}
-      <section className="py-20 bg-[var(--color-bg)]">
-        <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">
-
-          <h2 className="text-[24px] font-semibold text-[var(--color-accent)] mb-10">
-            Giá trị cốt lõi
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {VALUES.map((v) => (
-              <div
-                key={v.title}
-                className="bg-white/90 backdrop-blur border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-xl transition"
-              >
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded bg-[var(--color-accent)]/10 flex items-center justify-center text-[var(--color-accent)]">
-                    ✔
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold">{v.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{v.desc}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* ===== IMAGE BREAK ===== */}
-      <section className="relative py-24">
-        <img
-          src="/images/banner2.jpg"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/70" />
-
-        <div className="relative text-center text-white max-w-3xl mx-auto px-4">
-          <h3 className="text-[24px] font-semibold">
-            Giải pháp phù hợp cho từng doanh nghiệp sản xuất
-          </h3>
         </div>
       </section>
 
@@ -180,21 +163,60 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ===== PARTNERS ===== */}
+      {/* ===== TESTIMONIALS PRO ===== */}
       <section className="py-20 bg-[var(--color-bg)]">
         <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4 text-center">
 
+          {/* social proof */}
+          <p className="text-sm text-gray-500 mb-2">
+            Hơn 1.200+ doanh nghiệp đã tin tưởng MCBROTHER
+          </p>
+
           <h2 className="text-[24px] font-semibold text-[var(--color-accent)] mb-10">
-            Khách hàng & đối tác
+            Đánh giá từ khách hàng
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-            {[1,2,3,4,5].map(i => (
-              <div key={i} className="h-16 bg-gray-100 rounded flex items-center justify-center opacity-70 hover:opacity-100 transition">
-                Logo {i}
+          <div className="grid md:grid-cols-2 gap-6">
+            {TESTIMONIALS.map((t, i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-xl p-6 text-left shadow-sm hover:shadow-xl transition"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <img
+                    src={`https://i.pravatar.cc/40?img=${i + 10}`}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div className="font-medium">{t.name}</div>
+                </div>
+
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  "{t.content}"
+                </p>
+
+                <div className="mt-3 text-yellow-400">
+                  {"★".repeat(t.rating)}
+                  {"☆".repeat(5 - t.rating)}
+                </div>
               </div>
             ))}
           </div>
+
+          {/* CTA */}
+          
+            <div className="mt-12">
+              <p className="text-gray-600 mb-4">
+                Bạn muốn tối ưu quy trình sản xuất như các khách hàng trên?
+              </p>
+
+              <a
+                href="https://zalo.me/0834551888"
+                target="_blank"
+                className="inline-block bg-[var(--color-accent)] text-white px-6 py-3 rounded-lg hover:opacity-90 transition"
+              >
+                Liên hệ tư vấn ngay
+              </a>
+            </div>
 
         </div>
       </section>
@@ -202,3 +224,4 @@ export default function AboutPage() {
     </main>
   );
 }
+

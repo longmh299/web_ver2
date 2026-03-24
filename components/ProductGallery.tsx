@@ -1,62 +1,52 @@
+
+// components/ProductGallery.tsx
 "use client";
-import Image from "next/image";
+
 import { useState } from "react";
 
 export default function ProductGallery({
-  name,
-  coverImage,
-  images,
+  cover,
+  images = [],
 }: {
-  name: string;
-  coverImage?: string | null;
-  images: { url: string; alt?: string | null }[];
+  cover?: string | null;
+  images?: { url: string }[];
 }) {
-  const list = [...(coverImage ? [{ url: coverImage, alt: name }] : []), ...images];
-  const [idx, setIdx] = useState(0);
+  const allImages = [cover, ...images.map(i => i.url)].filter(Boolean);
 
-  if (list.length === 0)
-    return (
-      <div className="aspect-square rounded-xl border bg-white flex items-center justify-center text-slate-400">
-        Chưa có ảnh
-      </div>
-    );
+  const [active, setActive] = useState(allImages[0]);
 
   return (
     <div className="space-y-3">
-      {/* Ảnh lớn: 1:1, FULL cover */}
-      <div className="relative aspect-square rounded-xl border bg-white overflow-hidden">
-        <Image
-          src={list[idx].url}
-          alt={list[idx].alt || name}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
-          priority
-        />
+
+      {/* MAIN IMAGE */}
+      <div className="bg-white rounded-2xl border overflow-hidden shadow-sm">
+        <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
+          {active ? (
+            <img
+              src={active}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <div className="text-gray-400">No image</div>
+          )}
+        </div>
       </div>
 
-      {list.length > 1 && (
-        <div className="grid grid-cols-5 gap-2">
-          {list.map((img, i) => (
-            <button
-              key={i}
-              onClick={() => setIdx(i)}
-              className={`relative aspect-square rounded border overflow-hidden ${
-                i === idx ? "ring-2 ring-blue-500" : ""
-              }`}
-              type="button"
-            >
-              <Image
-                src={img.url}
-                alt={img.alt || name}
-                fill
-                sizes="120px"
-                className="object-cover"
-              />
-            </button>
-          ))}
-        </div>
-      )}
+      {/* THUMBNAIL */}
+      <div className="flex gap-2 overflow-x-auto">
+        {allImages.map((img, i) => (
+          <img
+            key={i}
+            src={img!}
+            onClick={() => setActive(img)}
+            className={`w-16 h-16 object-cover rounded border cursor-pointer ${
+              active === img ? "border-[var(--color-accent)]" : ""
+            }`}
+          />
+        ))}
+      </div>
+
     </div>
   );
 }
+

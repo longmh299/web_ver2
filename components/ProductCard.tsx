@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 export type ProductCardData = {
@@ -40,12 +41,17 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
     p.short?.split("\n").filter(Boolean).slice(0, 2) || [];
 
   return (
-    <article className="group flex flex-col h-full bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-[3px] hover:border-[var(--color-accent)]">
+    <article className="group flex flex-col h-full bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-[4px] hover:border-[var(--color-accent)]">
 
-      <Link href={`/san-pham/${p.slug}`} className="flex flex-col h-full">
+      {/* IMAGE */}
+      <Link href={`/san-pham/${p.slug}`} className="relative block">
+        <div className="relative h-[200px] bg-white flex items-center justify-center overflow-hidden">
 
-        {/* ===== IMAGE (60%) ===== */}
-        <div className="relative h-[60%] min-h-[180px] bg-white flex items-center justify-center overflow-hidden">
+          {/* BADGE */}
+          {/* <div className="absolute top-2 left-2 bg-[var(--color-accent)] text-white text-[11px] px-2 py-1 rounded">
+            Hàng mới
+          </div> */}
+
           {imgUrl ? (
             <img
               src={imgUrl}
@@ -57,50 +63,72 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
             <div className="text-sm text-gray-400">No image</div>
           )}
         </div>
-
-        {/* ===== CONTENT (40%) ===== */}
-<div className="flex flex-col flex-1 p-4">
-
-  {/* CATEGORY */}
-  {p.category && (
-    <div className="text-[12px] text-gray-500 mb-1 uppercase tracking-wide">
-      {p.category.name}
-    </div>
-  )}
-
-  {/* TITLE (TO HƠN + ĐẬM HƠN) */}
-  <h2 className="text-[16px] font-semibold leading-snug text-[var(--color-accent)] line-clamp-2 min-h-[44px]">
-    {p.name}
-  </h2>
-
-  {/* FEATURES */}
-  <div className="mt-2 min-h-[44px]">
-    {features.length > 0 && (
-      <ul className="text-[14px] text-gray-700 space-y-1">
-        {features.map((f, i) => (
-          <li key={i} className="flex gap-2">
-            <span className="text-green-500 text-sm">✔</span>
-            <span className="line-clamp-1">{f}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-
-  {/* PRICE */}
-  <div className="mt-2 text-[14px] font-semibold text-red-500">
-    Giá: {hasPrice ? `${fmtVND(p.price)} ₫` : "Liên hệ"}
-  </div>
-
-  {/* CTA */}
-  <div className="mt-auto pt-3">
-    <div className="w-full text-center py-2.5 rounded bg-[var(--color-secondary)] text-white text-[14px] font-semibold transition group-hover:bg-opacity-90">
-      Nhận báo giá
-    </div>
-  </div>
-
-</div>
       </Link>
+
+      {/* CONTENT */}
+      <div className="flex flex-col flex-1 p-4">
+
+        {/* CATEGORY */}
+        {p.category && (
+          <div className="text-[11px] text-gray-400 uppercase tracking-wide mb-1">
+            {p.category.name}
+          </div>
+        )}
+
+        {/* TITLE */}
+        <Link href={`/san-pham/${p.slug}`}>
+          <h2 className="text-[15px] font-semibold leading-snug text-gray-800 line-clamp-2 hover:text-[var(--color-accent)] transition">
+            {p.name}
+          </h2>
+        </Link>
+
+        {/* FEATURES */}
+        <div className="mt-2 min-h-[40px]">
+          {features.length > 0 && (
+            <ul className="text-[13px] text-gray-600 space-y-1">
+              {features.map((f, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="text-green-500 text-xs">✔</span>
+                  <span className="line-clamp-1">{f}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* PRICE */}
+        <div className="mt-2 text-[14px] font-semibold text-red-500">
+          {hasPrice ? `${fmtVND(p.price)} ₫` : "Giá: Liên hệ"}
+        </div>
+
+        {/* TRUST */}
+        <div className="mt-2 text-[12px] text-gray-500 space-y-1">
+          <div>✔ Bảo hành 12 tháng</div>
+          <div>✔ Giao hàng toàn quốc</div>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-auto pt-3 flex gap-2">
+
+          {/* XEM CHI TIẾT */}
+          <Link
+            href={`/san-pham/${p.slug}`}
+            className="flex-1 text-center py-2 rounded border text-[13px] hover:bg-gray-100 transition"
+          >
+            Xem chi tiết
+          </Link>
+
+          {/* ZALO */}
+          <a
+            href="https://zalo.me/0834551888"
+            target="_blank"
+            className="flex-1 text-center py-2 rounded bg-[var(--color-accent)] text-white text-[13px] font-semibold hover:opacity-90 transition"
+          >
+            Báo giá
+          </a>
+
+        </div>
+      </div>
     </article>
   );
 }

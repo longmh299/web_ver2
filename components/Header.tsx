@@ -101,34 +101,45 @@ export default function Header({ categories = [] }: { categories: Cat[] }) {
 
                   {/* DROPDOWN */}
                   <div
-                    className="absolute left-1/2 -translate-x-1/2 top-full z-50
-                    opacity-0 invisible translate-y-2
-                    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
-                    transition duration-200"
-                  >
-                    <div className="bg-white border shadow-lg rounded-xl p-3 w-[520px]">
-                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                        {categories.map((c) => (
-                          <Link
-                            key={c.slug}
-                            href={`/san-pham?categoryId=${c.id}`}
-                            className="px-3 py-2 text-sm rounded hover:bg-gray-100"
-                          >
-                            {c.name}
-                          </Link>
-                        ))}
-                      </div>
+  className="absolute left-1/2 -translate-x-1/2 top-full z-50
+  opacity-0 invisible translate-y-2
+  group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
+  transition duration-200"
+>
+  <div className="bg-white border border-gray-200 shadow-xl rounded-xl p-4 w-[520px]">
 
-                      <div className="mt-2 text-right">
-                        <Link
-                          href="/san-pham"
-                          className="text-xs text-gray-500 hover:text-[var(--color-accent)]"
-                        >
-                          Xem tất cả →
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
+    {/* GRID */}
+    <div className="grid grid-cols-2 gap-3">
+
+      {categories.map((c, i) => (
+        <Link
+          key={c.slug}
+          href={`/san-pham?categoryId=${c.id}`}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition text-sm"
+        >
+          <span className="text-base">
+            {i % 3 === 0 ? "📦" : i % 3 === 1 ? "🍖" : "💊"}
+          </span>
+          <span className="text-gray-700">{c.name}</span>
+        </Link>
+      ))}
+
+    </div>
+
+    {/* DIVIDER */}
+    <div className="mt-3 border-t pt-2 text-right">
+
+      <Link
+        href="/san-pham"
+        className="text-sm font-medium text-[var(--color-accent)] hover:underline"
+      >
+        Xem tất cả →
+      </Link>
+
+    </div>
+
+  </div>
+</div>
                 </div>
               );
             }

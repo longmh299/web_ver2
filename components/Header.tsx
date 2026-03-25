@@ -5,22 +5,26 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type Cat = { name: string; slug: string , id: number;};
+type Cat = {
+  id: number;
+  name: string;
+  slug: string;
+  ogImage?: string | null;
+  children?: Cat[];
+};
 
 export default function Header({ categories = [] }: { categories: Cat[] }) {
   const pathname = usePathname();
-  const [openMenu, setOpenMenu] = useState(false);
+  const [activeTab, setActiveTab] = useState<number | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    setOpenMenu(false);
-  }, [pathname]);
+    if (categories.length > 0) {
+      setActiveTab(categories[0].id);
+    }
+  }, [categories]);
 
-  useEffect(() => {
-    document.body.style.overflow = openMenu ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [openMenu]);
+  const activeCategory = categories.find((c) => c.id === activeTab);
 
   const nav = [
     { href: "/", label: "Trang chủ" },
@@ -34,49 +38,21 @@ export default function Header({ categories = [] }: { categories: Cat[] }) {
     href === "/" ? pathname === "/" : pathname?.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-50 bg-white border-b">
 
-      {/* TOP BAR */}
-      <div className="bg-[var(--color-primary)] text-white text-xs">
-        <div className="max-w-6xl mx-auto px-4 h-8 flex items-center justify-between">
-          <div className="opacity-90">
-            Cung cấp thiết bị & công nghệ ngành thực phẩm, dược phẩm
-          </div>
-          <div className="flex items-center gap-3">
-            <a href="tel:0834551888">0834 551 888</a>
-            <a
-              href="https://zalo.me/0834551888"
-              className="bg-[var(--color-accent)] px-2.5 py-1 rounded text-[11px]"
-            >
-              Zalo
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* MAIN NAV */}
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      {/* MAIN */}
+      <div className="max-w-7xl mx-auto px-4 h-14 flex justify-between items-center">
 
         {/* LOGO */}
         <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/images/logo.png"
-            alt="MCBROTHER"
-            width={56}
-            height={56}
-            className="rounded-full"
-          />
-          <div className="leading-tight">
-            <div className="font-semibold text-[15px] tracking-tight">
-              MCBROTHER
-            </div>
-            <div className="text-[12px] text-gray-500">
-              Machinery & Packaging
-            </div>
+          <Image src="/images/logo.png" alt="logo" width={50} height={50} />
+          <div>
+            <div className="font-semibold text-sm">MCBROTHER</div>
+            <div className="text-xs text-gray-500">Machinery</div>
           </div>
         </Link>
 
-        {/* NAV DESKTOP */}
+        {/* NAV */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           {nav.map((item) => {
             const active = isActive(item.href);
@@ -84,62 +60,101 @@ export default function Header({ categories = [] }: { categories: Cat[] }) {
             if (item.href === "/san-pham") {
               return (
                 <div key={item.href} className="relative group">
-
                   <Link
                     href="/san-pham"
-                    className={`px-2 py-2 transition ${
+                    className={`px-2 py-2 ${
                       active
                         ? "text-[var(--color-accent)]"
-                        : "text-gray-700 hover:text-[var(--color-accent)]"
+                        : "hover:text-[var(--color-accent)]"
                     }`}
                   >
                     {item.label}
                   </Link>
+                   {/* bridge */}
+  <div className="absolute top-full left-0 w-full h-3"></div>
+                  {/* MEGA MENU */}
+                  <div className="fixed left-0 top-[52px] w-screen z-50
+                    opacity-0 invisible
+                    group-hover:opacity-100 group-hover:visible
+                    transition-all duration-200">
 
-                  {/* BRIDGE */}
-                  <div className="absolute left-0 top-full h-3 w-full"></div>
+                    <div className="bg-white border-t shadow-lg w-full">
+                      <div className="max-w-7xl mx-auto flex h-[520px]">
 
-                  {/* DROPDOWN */}
-                  <div
-  className="absolute left-1/2 -translate-x-1/2 top-full z-50
-  opacity-0 invisible translate-y-2
-  group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
-  transition duration-200"
->
-  <div className="bg-white border border-gray-200 shadow-xl rounded-xl p-4 w-[520px]">
+                        {/* LEFT MENU */}
+                        <div className="w-[260px] border-r bg-gray-50 overflow-y-auto">
 
-    {/* GRID */}
-    <div className="grid grid-cols-2 gap-3">
+                          {categories.map((c) => (
+                            <div
+                              key={c.id}
+                              onMouseEnter={() => setActiveTab(c.id)}
+                              className={`px-4 py-3 text-sm cursor-pointer flex items-center gap-2
+                                ${
+                                  activeTab === c.id
+                                    ? "bg-white font-medium text-[var(--color-accent)]"
+                                    : "hover:bg-gray-100"
+                                }`}
+                            >
+                              📦 {c.name}
+                            </div>
+                          ))}
 
-      {categories.map((c, i) => (
-        <Link
-          key={c.slug}
-          href={`/san-pham?categoryId=${c.id}`}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition text-sm"
-        >
-          <span className="text-base">
-            {i % 3 === 0 ? "📦" : i % 3 === 1 ? "🍖" : "💊"}
-          </span>
-          <span className="text-gray-700">{c.name}</span>
-        </Link>
-      ))}
+                        </div>
 
-    </div>
+                        {/* RIGHT CONTENT (SCROLL) */}
+                        <div className="flex-1 overflow-y-auto p-6">
 
-    {/* DIVIDER */}
-    <div className="mt-3 border-t pt-2 text-right">
+                          {activeCategory?.children?.map((sub) => (
+                            <div key={sub.id} className="mb-8">
 
-      <Link
-        href="/san-pham"
-        className="text-sm font-medium text-[var(--color-accent)] hover:underline"
-      >
-        Xem tất cả →
-      </Link>
+                              {/* TITLE */}
+                              <Link
+                                href={`/${sub.slug}`}
+                                className="font-semibold text-base mb-4 block hover:text-[var(--color-accent)]"
+                              >
+                                {sub.name}
+                              </Link>
 
-    </div>
+                              {/* GRID ngang chuẩn */}
+                              <div className="grid grid-cols-6 gap-6">
 
-  </div>
-</div>
+                                {sub.children?.map((child) => (
+                                  <Link
+                                    key={child.id}
+                                    href={`/${child.slug}`}
+                                    className="text-center group"
+                                  >
+
+                                    {/* IMAGE */}
+                                    <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border bg-white
+                                      shadow-sm group-hover:shadow-md transition-all duration-200 group-hover:scale-110">
+
+                                      <Image
+                                        src={child.ogImage || "/images/no-image.png"}
+                                        alt={child.name}
+                                        fill
+                                        className="object-cover"
+                                      />
+                                    </div>
+
+                                    {/* NAME */}
+                                    <div className="text-sm mt-3 text-gray-700 group-hover:text-[var(--color-accent)] line-clamp-2">
+                                      {child.name}
+                                    </div>
+
+                                  </Link>
+                                ))}
+
+                              </div>
+
+                            </div>
+                          ))}
+
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             }
@@ -148,10 +163,10 @@ export default function Header({ categories = [] }: { categories: Cat[] }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-2 py-2 transition ${
+                className={`px-2 py-2 ${
                   active
                     ? "text-[var(--color-accent)]"
-                    : "text-gray-700 hover:text-[var(--color-accent)]"
+                    : "hover:text-[var(--color-accent)]"
                 }`}
               >
                 {item.label}
@@ -159,75 +174,6 @@ export default function Header({ categories = [] }: { categories: Cat[] }) {
             );
           })}
         </nav>
-
-        {/* RIGHT */}
-        <div className="flex items-center gap-2">
-          <Link
-            href="https://zalo.me/0834551888"
-            className="hidden sm:inline-flex items-center px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100"
-          >
-            Zalo
-          </Link>
-
-          <Link
-            href="/lien-he"
-            className="hidden sm:inline-flex bg-[var(--color-accent)] text-white px-3 py-1.5 text-sm rounded font-medium"
-          >
-            Nhận báo giá
-          </Link>
-
-          <button
-            className="md:hidden w-10 h-10 flex items-center justify-center"
-            onClick={() => setOpenMenu(!openMenu)}
-          >
-            ☰
-          </button>
-        </div>
-      </div>
-
-      {/* OVERLAY */}
-      <div
-        className={`md:hidden fixed inset-0 bg-black/40 transition ${
-          openMenu ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => setOpenMenu(false)}
-      />
-
-      {/* MOBILE MENU */}
-      <div
-        className={`md:hidden fixed right-0 top-0 h-full w-72 bg-white shadow-xl transform transition ${
-          openMenu ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="p-4 font-semibold border-b">Menu</div>
-
-        <div className="p-3 space-y-2">
-          {nav.map((item) => {
-            const active = isActive(item.href);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpenMenu(false)}
-                className={`block px-3 py-2 rounded ${
-                  active
-                    ? "bg-gray-100 text-[var(--color-accent)]"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-
-          <a
-            href="tel:0834551888"
-            className="block mt-4 text-center bg-[var(--color-accent)] text-white py-2 rounded"
-          >
-            Gọi 0834 551 888
-          </a>
-        </div>
       </div>
     </header>
   );

@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import ProductCard from "@/components/ProductCard";
-import Link from "next/link";
+import CategoryChips from "@/components/CategoryChips";
 import { prisma } from "@/lib/prisma";
 import { abs } from "@/lib/site";
 import { redirect, notFound } from "next/navigation";
@@ -24,8 +24,10 @@ export async function generateMetadata(
 
   const title = c.metaTitle || c.name;
   const description =
-    c.metaDescription || `Giải pháp ${c.name.toLowerCase()} tối ưu cho doanh nghiệp sản xuất.`;
-  const url = c.canonicalUrl || abs(`/danh-muc/${c.slug}`);
+    c.metaDescription ||
+    `MCBROTHER cung cấp ${c.name.toLowerCase()} cho ngành thực phẩm, giúp tối ưu sản xuất và nâng cao hiệu suất.`;
+
+  const url = c.canonicalUrl || abs(`/${c.slug}`);
   const ogImage = c.ogImage || abs("/images/placeholder.jpg");
 
   return {
@@ -52,28 +54,24 @@ export default async function CategoryPage(
 ) {
   const { slug } = await params;
 
+  // 🔥 Lấy category + product
   const c = await prisma.category.findUnique({
     where: { slug },
     include: {
-      children: {
-        orderBy: { order: "asc" },
-        include: {
-          products: {
-            where: { published: true, noindex: false },
-            orderBy: { createdAt: "desc" },
+      products: {
+        where: { published: true, noindex: false },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          price: true,
+          coverImage: true,
+          short: true,
+          category: {
             select: {
               id: true,
-              slug: true,
               name: true,
-              price: true,
-              coverImage: true,
-              short: true,
-              category: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
             },
           },
         },
@@ -86,10 +84,27 @@ export default async function CategoryPage(
       where: { fromSlug: slug },
     });
     if (r?.entityType === "category") {
-      redirect(`/danh-muc/${r.toSlug}`);
+      redirect(`/${r.toSlug}`);
     }
     notFound();
   }
+
+  // 🔥 Lấy category con cùng cha (chips)
+  const relatedCategories = await prisma.category.findMany({
+    where: {
+      parentId: {
+      not: null,
+    },
+    },
+    orderBy: {
+      order: "asc",
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  });
 
   return (
     <main className="bg-[var(--color-bg)] text-slate-800">
@@ -104,55 +119,35 @@ export default async function CategoryPage(
 
         <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 py-20 text-white text-center">
           <h1 className="text-[28px] md:text-[32px] font-semibold">
-            {c.name.replace("Ngành ", "").toUpperCase()}
+            {c.name}
           </h1>
 
           <p className="mt-3 text-sm text-white/80 max-w-2xl mx-auto">
             {c.metaDescription ||
-              `Tổng hợp các giải pháp máy móc cho ${c.name.toUpperCase()}`}
+              `MCBROTHER cung cấp ${c.name.toLowerCase()} cho ngành thực phẩm, giúp tối ưu sản xuất và nâng cao hiệu suất.`}
           </p>
         </div>
       </section>
 
-      {/* ===== CONTENT ===== */}
+      {/* ===== PRODUCTS ===== */}
       <section className="py-12">
         <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">
 
-          {/* ===== LOOP CATEGORY CON ===== */}
-          {c.children.map((child) => (
-            <div key={child.id} className="mb-12">
+          {/* 🔥 CATEGORY NAV (CHIPS) */}
+          <CategoryChips categories={relatedCategories} />
 
-              {/* TITLE */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[18px] font-semibold text-[var(--color-accent)]">
-                  {child.name}
-                </h2>
-
-                {/* <Link
-                  href={`/danh-muc/${child.slug}`}
-                  className="text-sm text-gray-500 hover:text-black"
-                >
-                  Xem tất cả →
-                </Link> */}
-              </div>
-
-              {/* PRODUCTS */}
-              {child.products.length > 0 ? (
-                <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-                  {child.products.slice(0, 8).map((p) => (
-                    <ProductCard key={p.id} p={p} />
-                  ))}
-
-                </div>
-              ) : (
-                <div className="text-sm text-gray-400 italic">
-                  Chưa có sản phẩm
-                </div>
-              )}
-
+          {/* 🔥 PRODUCT GRID */}
+          {c.products.length > 0 ? (
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {c.products.map((p) => (
+                <ProductCard key={p.id} p={p} />
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="text-center text-gray-400 italic">
+              Chưa có sản phẩm trong danh mục này
+            </div>
+          )}
 
         </div>
       </section>

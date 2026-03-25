@@ -69,18 +69,41 @@ async function getHomepageData() {
         })
       : [];
 
-  const categories = await prisma.category.findMany({
-    where: {
-      parentId: null, // 🔥 chỉ lấy category cha
+ const categoriesHome = await prisma.category.findMany({
+  where: {
+    isFeatured: true,
+  },
+  orderBy: {
+    order: "asc"
+  },
+  select: {
+    id: true,
+    name: true,
+    slug: true,
+    banner: true,
+    ogImage: true,
+    metaDescription: true,
+    children: true
+  }
+});
+const categories = await prisma.category.findMany({
+  where: {
+    parentId: null, // 🔥 chỉ lấy danh mục cha
+  },
+  orderBy: {
+    order: "asc",
+  },
+  include: {
+    children: {
+      orderBy: { order: "asc" },
+      include: {
+        children: true
+          
+        
+      },
     },
-    include: {
-      children: true, // để đếm số category con
-    },
-    orderBy: {
-      order: "asc",
-    },
-    take: 3, // đúng 3 cái
-  });
+  },
+});
   const posts = await prisma.post.findMany({
   where: {
     published: true,
@@ -95,7 +118,7 @@ async function getHomepageData() {
 });
   return {
     products: featured.length ? featured : latestIfEmpty,
-    categories,
+    categories, categoriesHome,
     posts,
   };
 }
@@ -115,7 +138,7 @@ const categoryImages: Record<string, string[]> = {
   ],
 };
 export default async function HomePage() {
-   const { products ,categories,posts } = await getHomepageData();
+   const { products ,categories,categoriesHome,posts } = await getHomepageData();
   return (
     <main className="bg-[var(--color-bg)] text-slate-800">
 
@@ -129,11 +152,11 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 py-24 text-center text-white">
           <h1 className="text-[30px] md:text-[36px] font-semibold leading-snug">
-            Giải pháp máy đóng gói & chế biến cho doanh nghiệp sản xuất
+           Giải pháp máy đóng gói & thiết bị ngành thực phẩm tại TP.HCM
           </h1>
 
           <p className="mt-3 text-[15px] text-white/80 max-w-2xl mx-auto">
-            Tối ưu dây chuyền – tăng năng suất – hỗ trợ kỹ thuật tận nơi
+            MCBROTHER cung cấp máy đóng gói, máy chiết rót và thiết bị ngành thực phẩm tại TP.HCM, phục vụ doanh nghiệp sản xuất trên toàn quốc.
           </p>
 
           <button className="mt-6 bg-[var(--color-accent)] hover:brightness-95 px-6 py-3 rounded text-base font-semibold font-semibold">
@@ -142,15 +165,22 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== INDUSTRY ===== */}
-      <section className="py-14">
+<section className="py-14">
   <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">
-    <h2 className="text-[20px] font-semibold text-center mb-8">
-      Giải pháp theo ngành sản xuất
+    
+    {/* TITLE */}
+    <h2 className="text-[20px] font-semibold text-center mb-2">
+      Thiết bị & máy móc ngành thực phẩm
     </h2>
 
+    {/* SUBTEXT (AI rất cần) */}
+    <p className="text-center text-sm text-gray-600 max-w-2xl mx-auto mb-8">
+      MCBROTHER cung cấp các dòng máy đóng gói, máy chiết rót và thiết bị chế biến 
+giúp doanh nghiệp tối ưu quy trình sản xuất và nâng cao hiệu suất vận hành.
+    </p>
+
     <div className="grid md:grid-cols-3 gap-6">
-      {categories.map((cat) => (
+      {categoriesHome.map((cat) => (
         <div
           key={cat.id}
           className="group bg-white border border-gray-200 rounded overflow-hidden transition duration-300 hover:shadow-md hover:-translate-y-1"
@@ -159,11 +189,9 @@ export default async function HomePage() {
           <div className="relative h-56 bg-gray-200 overflow-hidden">
             <img
               src={cat.ogImage || cat.banner || "/images/no-image.png"}
-              alt={cat.name}
+              alt={`${cat.name} MCBROTHER`}
               className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
             />
-
-            {/* overlay nhẹ */}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition" />
           </div>
 
@@ -175,12 +203,13 @@ export default async function HomePage() {
 
             <p className="text-sm text-gray-600 leading-snug line-clamp-2">
               {cat.metaDescription ||
-                `Có ${cat.children.length} giải pháp cho ngành ${cat.name.toLowerCase()}`}
+                `MCBROTHER cung cấp ${cat.name.toLowerCase()} cho ngành thực phẩm, 
+                giúp tối ưu quy trình sản xuất và nâng cao năng suất.`}
             </p>
 
-            <Link href={`/danh-muc/${cat.slug}`}>
+            <Link href={`/${cat.slug}`}>
               <button className="mt-4 w-full bg-[var(--color-secondary)] text-white py-2 text-base font-semibold transition hover:brightness-95">
-                Tìm hiểu thêm
+                Xem chi tiết →
               </button>
             </Link>
           </div>

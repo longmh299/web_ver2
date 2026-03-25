@@ -28,7 +28,7 @@ model Category {
   parent          Category?  @relation("CategoryToChildren", fields: [parentId], references: [id])
   children        Category[] @relation("CategoryToChildren")
   products        Product[]
-
+  isFeatured Boolean @default(false)
   @@index([parentId])
   @@index([name])
 }

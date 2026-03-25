@@ -74,7 +74,7 @@ if (categoryId) {
 
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
-    select: { id: true, name: true, parentId: true }
+    select: { id: true, name: true, parentId: true, slug: true, }
   });
 
   return {

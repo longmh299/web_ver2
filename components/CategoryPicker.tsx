@@ -1,37 +1,19 @@
-// components/CategoryChips.tsx
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-type Cat = { id: number; name: string };
+type Cat = { id: number; name: string; slug: string };
 
 export default function CategoryChips({ categories }: { categories: Cat[] }) {
   const router = useRouter();
   const pathname = usePathname();
-  const sp = useSearchParams();
 
-  const selectedId = (() => {
-    const raw = (sp.get("categoryId") ?? "").trim();
-    return /^\d+$/.test(raw) ? Number(raw) : undefined;
-  })();
-
-  function go(id?: number) {
-    const params = new URLSearchParams(sp.toString());
-
-    params.delete("cat");
-    params.delete("page");
-
-    if (!id) {
-      params.delete("categoryId");
+  function go(slug?: string) {
+    if (!slug) {
+      router.replace("/san-pham");
     } else {
-      params.set("categoryId", String(id));
+      router.replace(`/danh-muc/${slug}`);
     }
-
-    const qs = params.toString();
-    const url = qs ? `${pathname}?${qs}` : pathname;
-
-    router.replace(url);
-    router.refresh();
   }
 
   return (
@@ -42,8 +24,8 @@ export default function CategoryChips({ categories }: { categories: Cat[] }) {
         onClick={() => go(undefined)}
         className={`px-4 py-1.5 rounded-full text-sm border transition whitespace-nowrap
           ${
-            !selectedId
-              ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
+            pathname === "/san-pham"
+              ? "bg-[var(--color-accent)] text-white"
               : "bg-white hover:bg-gray-100 text-gray-700"
           }`}
       >
@@ -51,16 +33,16 @@ export default function CategoryChips({ categories }: { categories: Cat[] }) {
       </button>
 
       {categories.map((c) => {
-        const active = selectedId === c.id;
+        const active = pathname.includes(c.slug);
 
         return (
           <button
             key={c.id}
-            onClick={() => go(c.id)}
+            onClick={() => go(c.slug)}
             className={`px-4 py-1.5 rounded-full text-sm border transition whitespace-nowrap
               ${
                 active
-                  ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
+                  ? "bg-[var(--color-accent)] text-white"
                   : "bg-white hover:bg-gray-100 text-gray-700"
               }`}
           >

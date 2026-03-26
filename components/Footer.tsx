@@ -41,69 +41,61 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#2f3e4e] text-white mt-0">
+    <footer className="bg-[#1f2d3d] text-white mt-0">
 
       {/* MAIN */}
-      <div className="max-w-7xl mx-auto px-4 py-14 grid md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-4 gap-6">
 
         {/* BRAND */}
-        <div className="space-y-5">
+        <div className="space-y-3">
           <div>
-            <h3 className="text-lg font-bold uppercase">
+            <h3 className="text-[15px] font-bold uppercase">
               Công ty cổ phần thiết bị MCBROTHER
             </h3>
-            <p className="text-sm text-white/70 mt-2">
+            <p className="text-[13px] text-white/70 mt-1 leading-relaxed">
               Giải pháp máy chế biến & đóng gói cho doanh nghiệp sản xuất.
             </p>
           </div>
 
           {/* SOCIAL */}
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {socials.map((s) => (
-              <a
-                key={s.key}
-                href={s.href}
-                target="_blank"
-                className="group"
-              >
-                <div className="w-9 h-9 flex items-center justify-center rounded bg-white/10 hover:bg-[#d47a2c] transition">
-                  <s.icon className="w-5 h-5 text-white group-hover:text-black" />
+              <a key={s.key} href={s.href} target="_blank">
+                <div className="w-8 h-8 flex items-center justify-center rounded bg-white/10 hover:bg-[var(--color-primary)] transition">
+                  <s.icon className="w-4 h-4 text-white" />
                 </div>
               </a>
             ))}
           </div>
 
           {/* BỘ CÔNG THƯƠNG */}
-          <img
-            src="/images/bo-cong-thuong.png"
-            className="h-14"
-          />
+          <img src="/images/bo-cong-thuong.png" className="h-12" />
         </div>
 
         {/* DANH MỤC */}
         <div>
-          <h4 className="font-semibold mb-4">Danh mục</h4>
-          <ul className="space-y-2 text-sm text-white/70">
-            <li><Link href="/san-pham" className="hover:text-[#d47a2c]">Máy đóng gói</Link></li>
-            <li><Link href="/san-pham" className="hover:text-[#d47a2c]">Máy chế biến</Link></li>
-            <li><Link href="/san-pham" className="hover:text-[#d47a2c]">Máy hút chân không</Link></li>
-            <li><Link href="/san-pham" className="hover:text-[#d47a2c]">Máy dán nhãn</Link></li>
+          <h4 className="font-semibold mb-3 text-[14px]">Danh mục</h4>
+          <ul className="space-y-1.5 text-[13px] text-white/70">
+            <li><Link href="/san-pham" className="hover:text-[var(--color-primary)]">Máy đóng gói</Link></li>
+            <li><Link href="/san-pham" className="hover:text-[var(--color-primary)]">Máy chế biến</Link></li>
+            <li><Link href="/san-pham" className="hover:text-[var(--color-primary)]">Máy hút chân không</Link></li>
+            <li><Link href="/san-pham" className="hover:text-[var(--color-primary)]">Máy dán nhãn</Link></li>
           </ul>
         </div>
 
         {/* CHÍNH SÁCH */}
         <div>
-          <h4 className="font-semibold mb-4">Chính sách</h4>
-          <ul className="space-y-2 text-sm text-white/70">
-            <li><Link href="#" className="hover:text-[#d47a2c]">Chính sách bảo hành</Link></li>
-            <li><Link href="#" className="hover:text-[#d47a2c]">Chính sách giao hàng</Link></li>
-            <li><Link href="#" className="hover:text-[#d47a2c]">Liên hệ</Link></li>
+          <h4 className="font-semibold mb-3 text-[14px]">Chính sách</h4>
+          <ul className="space-y-1.5 text-[13px] text-white/70">
+            <li><Link href="#" className="hover:text-[var(--color-primary)]">Chính sách bảo hành</Link></li>
+            <li><Link href="#" className="hover:text-[var(--color-primary)]">Chính sách giao hàng</Link></li>
+            <li><Link href="/lien-he" className="hover:text-[var(--color-primary)]">Liên hệ</Link></li>
           </ul>
         </div>
 
         {/* CONTACT */}
-        <div className="text-sm text-white/70 space-y-2">
-          <h4 className="font-semibold mb-4">Liên hệ</h4>
+        <div className="text-[13px] text-white/70 space-y-1.5">
+          <h4 className="font-semibold mb-3 text-[14px]">Liên hệ</h4>
 
           <p>
             33 đường số 5, KDC Vĩnh Lộc,<br />
@@ -112,7 +104,7 @@ export default function Footer() {
 
           <p>
             Hotline:{" "}
-            <a href="tel:0834551888" className="text-white hover:text-[#d47a2c]">
+            <a href="tel:0834551888" className="text-white hover:text-[var(--color-primary)]">
               0834 551 888
             </a>
           </p>
@@ -127,7 +119,7 @@ export default function Footer() {
       </div>
 
       {/* BOTTOM */}
-      <div className="border-t border-white/10 text-center text-xs text-white/50 py-4">
+      <div className="border-t border-white/10 text-center text-xs text-white/50 py-3">
         © {new Date().getFullYear()} MCBROTHER JSC. All rights reserved.
       </div>
 

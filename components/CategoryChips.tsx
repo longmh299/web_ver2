@@ -32,11 +32,11 @@ export default function CategoryChips({
             <Link
               key={cat.id}
               href={`/${cat.slug}`}
-              className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap transition
+              className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap transition border
                 ${
                   active
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                 }`}
             >
               {cat.name}

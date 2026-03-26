@@ -14,7 +14,6 @@ export default function CategoryFilter({ categories }: { categories: Cat[] }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  /* 🔥 Lấy danh mục cuối (leaf) */
   const leafCategories = useMemo(() => {
     const hasChild = new Set<number>();
 
@@ -27,14 +26,13 @@ export default function CategoryFilter({ categories }: { categories: Cat[] }) {
     return categories.filter((c) => !hasChild.has(c.id));
   }, [categories]);
 
-  /* 🔥 Navigate bằng slug */
   function go(cat?: Cat) {
     if (!cat) {
-      router.push("/san-pham"); // tất cả sản phẩm
+      router.push("/san-pham");
       return;
     }
 
-    router.push(`/${cat.slug}`); // 👉 category page
+    router.push(`/${cat.slug}`);
   }
 
   return (
@@ -47,11 +45,10 @@ export default function CategoryFilter({ categories }: { categories: Cat[] }) {
           {/* ALL */}
           <button
             onClick={() => go(undefined)}
-            className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap border
-              ${
-                pathname === "/san-pham"
-                  ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
-                  : "bg-gray-100"
+            className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap border transition
+              ${pathname === "/san-pham"
+               ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
               }`}
           >
             Tất cả
@@ -65,10 +62,9 @@ export default function CategoryFilter({ categories }: { categories: Cat[] }) {
                 key={cat.id}
                 onClick={() => go(cat)}
                 className={`px-4 py-1.5 rounded-full text-sm whitespace-nowrap border transition
-                  ${
-                    active
-                      ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
-                      : "bg-gray-100 hover:bg-gray-200"
+  ${active
+                    ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)] shadow-sm"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                   }`}
               >
                 {cat.name}

@@ -3,13 +3,6 @@
 @tailwind utilities;
 
 /* ===== COLOR SYSTEM ===== */
-:root {
-  --color-primary: #2f3e4e;   /* xanh xám đậm (main) */
-  --color-secondary: #3e556e; /* xanh đậm phụ */
-  --color-accent: #d47a2c;    /* cam CTA */
-  --color-bg: #f5f6f7;        /* nền chuẩn industrial */
-}
-
 /* ===== BASE ===== */
 html, body {
   @apply bg-[var(--color-bg)] text-slate-800;
@@ -201,4 +194,11 @@ footer *::-moz-selection {
 .prose img:not([data-full]) {
   max-width: 720px;
   margin: 24px auto;
+}
+:root {
+  --color-primary: #1ECAD3;       /* xanh ngọc logo (dịu lại) */
+  --color-primary-dark: #159CA3;
+  --color-accent: #F5C400;        /* vàng giảm chói */
+  --color-secondary: #159CA3;     /* dùng cho button phụ */
+  --color-bg: #F7F9FA;
 }

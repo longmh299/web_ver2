@@ -46,6 +46,8 @@ export default async function EditProductPage({ params }: Props) {
         noindex: true,
         nofollow: true,
         categoryId: true,
+        specTable: true,
+        faqs: true,
       },
     }),
     prisma.category.findMany({
@@ -298,6 +300,75 @@ export default async function EditProductPage({ params }: Props) {
               </div>
             </div>
           </div>
+          {/* Card 4: Bảng thông số nâng cao */}
+          <div className="rounded-2xl border bg-white shadow-sm">
+            <div className="border-b px-5 py-3 font-medium">
+              Bảng thông số nâng cao
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div id="specColumnsWrap" className="space-y-2">
+                Thêm mã máy
+              </div>
+
+              <button
+                type="button"
+                id="addColumnBtn"
+                className="text-sm text-blue-600"
+              >
+                + Thêm model
+              </button>
+
+              <div id="specRowsWrap" className="space-y-3">
+                Thông số máy
+              </div>
+
+              <button
+                type="button"
+                id="addRowBtn"
+                className="text-sm text-blue-600"
+              >
+                + Thêm dòng
+              </button>
+
+              {/* 🔥 FIX KEY */}
+              <input
+  key={`spec-${product.id}`}
+  type="hidden"
+  id="specTableInput"
+  name="specTable"
+  value={JSON.stringify(product.specTable ?? null)}
+/>
+            </div>
+          </div>
+
+          {/* Card 5: FAQ */}
+          <div className="rounded-2xl border bg-white shadow-sm">
+            <div className="border-b px-5 py-3 font-medium">
+              FAQ sản phẩm
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div id="faqWrap" className="space-y-3"></div>
+
+              <button
+                type="button"
+                id="addFaqBtn"
+                className="text-sm text-blue-600"
+              >
+                + Thêm câu hỏi
+              </button>
+
+              {/* 🔥 FIX KEY */}
+             <input
+  key={`faq-${product.id}`}
+  type="hidden"
+  id="faqInput"
+  name="faqs"
+  value={JSON.stringify(product.faqs ?? [])}
+/>
+            </div>
+          </div>
         </section>
 
         {/* Cột phải: SEO */}
@@ -393,19 +464,30 @@ export default async function EditProductPage({ params }: Props) {
   const metaTitleCount = $('#metaTitleCount');
   const metaDescCount = $('#metaDescCount');
 
-  let dirty = false;
-  const markDirty = ()=>{ dirty = true; };
+  const specColumnsWrap = document.getElementById('specColumnsWrap');
+  const specRowsWrap = document.getElementById('specRowsWrap');
+  const specTableInput = document.getElementById('specTableInput');
 
-  // Auto slug
-  const toSlug = (s) => s
-    .toLowerCase()
-    .normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'')
-    .replace(/[^a-z0-9\\s-]/g,'')
-    .trim()
-    .replace(/[\\s_-]+/g,'-')
-    .replace(/^-+|-+$/g,'');
+  const faqWrap = document.getElementById('faqWrap');
+  const faqInput = document.getElementById('faqInput');
+
+  let dirty = false;
+  const markDirty = function(){ dirty = true; };
+
+  // ===== Auto slug =====
+  const toSlug = function(s){
+    return s
+      .toLowerCase()
+      .normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'')
+      .replace(/[^a-z0-9\\s-]/g,'')
+      .trim()
+      .replace(/[\\s_-]+/g,'-')
+      .replace(/^-+|-+$/g,'');
+  };
+
   let lastAutoSlug = slugEl?.value || '';
-  const syncSlug = ()=>{
+
+  const syncSlug = function(){
     if (!nameEl || !slugEl) return;
     const base = toSlug(nameEl.value || '');
     if (slugEl.value === '' || slugEl.value === lastAutoSlug) {
@@ -414,11 +496,12 @@ export default async function EditProductPage({ params }: Props) {
       if (slugHint) slugHint.textContent = base ? 'Slug gợi ý: ' + base : '';
     }
   };
-  if (nameEl) nameEl.addEventListener('input', ()=>{ syncSlug(); markDirty(); });
-  if (slugEl) slugEl.addEventListener('input', ()=>{ markDirty(); });
 
-  // Video preview
-  const toYouTubeEmbed = (u)=>{
+  if (nameEl) nameEl.addEventListener('input', function(){ syncSlug(); markDirty(); });
+  if (slugEl) slugEl.addEventListener('input', markDirty);
+
+  // ===== VIDEO =====
+  const toYouTubeEmbed = function(u){
     try {
       const url = new URL(u);
       if (/^(www\\.)?youtube\\.com$/i.test(url.hostname) && url.searchParams.get('v')) {
@@ -430,14 +513,19 @@ export default async function EditProductPage({ params }: Props) {
     } catch {}
     return null;
   };
-  const isVideoFile = (u)=>/\\.(mp4|webm|ogg)(\\?.*)?$/i.test(u) || /\\/video\\/upload\\//.test(u);
 
-  const updateVideo = ()=>{
+  const isVideoFile = function(u){
+    return /\\.(mp4|webm|ogg)(\\?.*)?$/i.test(u) || /\\/video\\/upload\\//.test(u);
+  };
+
+  const updateVideo = function(){
     if (!videoInput || !videoWrap || !ytPreview || !mp4Preview) return;
+
     const raw = (videoInput.value || '').trim();
     ytPreview.classList.add('hidden');
     mp4Preview.classList.add('hidden');
     videoWrap.classList.add('hidden');
+
     if (!raw) return;
 
     const yt = toYouTubeEmbed(raw);
@@ -447,42 +535,113 @@ export default async function EditProductPage({ params }: Props) {
       videoWrap.classList.remove('hidden');
       return;
     }
+
     if (isVideoFile(raw)) {
       mp4Preview.src = raw;
       mp4Preview.classList.remove('hidden');
       videoWrap.classList.remove('hidden');
-      return;
     }
   };
+
   if (videoInput) {
-    videoInput.addEventListener('input', ()=>{ updateVideo(); markDirty(); });
+    videoInput.addEventListener('input', function(){ updateVideo(); markDirty(); });
     updateVideo();
   }
 
-  // SEO counters
-  const paintCount = (el, val, goodMin, goodMax) => {
+  // ===== SEO =====
+  const paintCount = function(el, val, min, max){
     const len = val.length;
-    const ok = len>=goodMin && len<=goodMax;
+    const ok = len>=min && len<=max;
     el.textContent = len + ' ký tự' + (ok ? ' (tốt)' : '');
     el.style.color = ok ? '#16a34a' : '#6b7280';
   };
-  const tickSEO = ()=>{
+
+  const tickSEO = function(){
     if (metaTitle && metaTitleCount) paintCount(metaTitleCount, metaTitle.value, 50, 60);
     if (metaDescription && metaDescCount) paintCount(metaDescCount, metaDescription.value, 140, 160);
   };
-  if (metaTitle) metaTitle.addEventListener('input', ()=>{ tickSEO(); markDirty(); });
-  if (metaDescription) metaDescription.addEventListener('input', ()=>{ tickSEO(); markDirty(); });
+
+  if (metaTitle) metaTitle.addEventListener('input', function(){ tickSEO(); markDirty(); });
+  if (metaDescription) metaDescription.addEventListener('input', function(){ tickSEO(); markDirty(); });
   tickSEO();
 
-  // Warn on leave
-  window.addEventListener('beforeunload', (e)=>{
-    if (dirty) { e.preventDefault(); e.returnValue = ''; }
-  });
-  if (form) {
-    form.addEventListener('submit', ()=>{ dirty = false; submitBtn?.setAttribute('disabled','true'); });
+  // ===== 🔥 FIX PREFILL =====
+  function renderSpecAndFaq() {
+    try {
+      const specData = JSON.parse(specTableInput?.value || 'null');
+      const faqData = JSON.parse(faqInput?.value || '[]');
+
+      // clear
+      if (specColumnsWrap) specColumnsWrap.innerHTML = '';
+      if (specRowsWrap) specRowsWrap.innerHTML = '';
+      if (faqWrap) faqWrap.innerHTML = '';
+
+      // spec
+      if (specData) {
+        specData.columns?.forEach(function(col){
+          const input = document.createElement('input');
+          input.value = col;
+          input.className = 'w-full border px-3 py-2 rounded';
+          specColumnsWrap?.appendChild(input);
+        });
+
+        specData.rows?.forEach(function(row){
+          const rowDiv = document.createElement('div');
+          rowDiv.className = 'space-y-2';
+
+          const label = document.createElement('input');
+          label.value = row.label;
+          label.className = 'border px-2 py-1 rounded w-full';
+
+          const valuesWrap = document.createElement('div');
+          valuesWrap.className = 'flex gap-2 flex-wrap';
+
+          row.values?.forEach(function(v){
+            const val = document.createElement('input');
+            val.value = v;
+            val.className = 'border px-2 py-1 rounded';
+            valuesWrap.appendChild(val);
+          });
+
+          rowDiv.appendChild(label);
+          rowDiv.appendChild(valuesWrap);
+
+          specRowsWrap?.appendChild(rowDiv);
+        });
+      }
+
+      // faq
+      faqData.forEach(function(f){
+        const div = document.createElement('div');
+        div.className = 'space-y-1';
+
+        div.innerHTML =
+          '<input value="'+(f.question || '')+'" class="w-full border px-3 py-2 rounded"/>' +
+          '<input value="'+(f.answer || '')+'" class="w-full border px-3 py-2 rounded"/>';
+
+        faqWrap?.appendChild(div);
+      });
+
+    } catch (e) {
+      console.log("Render error:", e);
+    }
   }
+
+  // ===== INIT =====
+  syncSlug();
+
+  // 🔥 chạy lần đầu
+  setTimeout(renderSpecAndFaq, 100);
+
+  // 🔥 chạy lại khi quay lại page
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') {
+      renderSpecAndFaq();
+    }
+  });
+
 })();
-      `}</Script>
+`}</Script>
     </div>
   );
 }

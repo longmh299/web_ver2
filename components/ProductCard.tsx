@@ -28,7 +28,7 @@ function cldThumb(url: string | null, w = 600, h = 600) {
         `/upload/c_fill,g_auto:subject,f_auto,q_auto,dpr_auto,w_${w},h_${h}/`
       );
     }
-  } catch {}
+  } catch { }
   return url;
 }
 
@@ -36,8 +36,13 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
   const hasPrice = typeof p.price === "number" && Number.isFinite(p.price);
   const imgUrl = cldThumb(p.coverImage, 600, 600);
 
-  const features =
-    p.short?.split("\n").filter(Boolean).slice(0, 2) || [];
+  const features = p.short
+    ? p.short
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 2)
+    : [];
 
   return (
     <article className="group flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-[4px] hover:border-[var(--color-primary)]">
@@ -76,18 +81,21 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
           </h2>
         </Link>
 
-        {/* FEATURES */}
         <div className="mt-2 min-h-[40px]">
-          {features.length > 0 && (
+          {features.length > 0 ? (
             <ul className="text-[13px] text-gray-600 space-y-1">
               {features.map((f, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-[var(--color-primary)] text-xs">✔</span>
-                  <span className="line-clamp-1">{f}</span>
+                  <span className="line-clamp-1 leading-snug">{f}</span>
                 </li>
               ))}
             </ul>
-          )}
+          ) : p.short ? (
+            <p className="text-[13px] text-gray-600 line-clamp-2">
+              {p.short}
+            </p>
+          ) : null}
         </div>
 
         {/* PRICE */}

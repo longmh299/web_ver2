@@ -63,7 +63,8 @@ export async function createProduct(formData: FormData) {
   // NEW: lấy & chuẩn hoá videoUrl
   const videoUrlRaw = asString(formData.get('videoUrl'));
   const videoUrl = toEmbedUrl(orNull(videoUrlRaw));
-
+  const specTable = JSON.parse((formData.get('specTable') as string) || 'null');
+  const faqs = JSON.parse((formData.get('faqs') as string) || '[]');
   const data = {
     name,
     slug,
@@ -72,6 +73,8 @@ export async function createProduct(formData: FormData) {
     sku: asString(formData.get('sku')) || null,
     price: asInt(formData.get('price')),
     coverImage: asString(formData.get('coverImage')) || null,
+    specTable,
+    faqs,
 
     // NEW: lưu video
     videoUrl,
@@ -118,7 +121,8 @@ export async function updateProduct(formData: FormData) {
   // NEW: lấy & chuẩn hoá videoUrl
   const videoUrlRaw = asString(formData.get('videoUrl'));
   const videoUrl = toEmbedUrl(orNull(videoUrlRaw));
-
+  const specTable = JSON.parse((formData.get('specTable') as string) || 'null');
+  const faqs = JSON.parse((formData.get('faqs') as string) || '[]');
   const data = {
     name,
     slug,
@@ -149,11 +153,16 @@ export async function updateProduct(formData: FormData) {
     nofollow: asBool(formData.get('nofollow')),
 
     categoryId: asInt(formData.get('categoryId')),
+    specTable,
+  faqs,
   };
 
   await prisma.product.update({ where: { id }, data });
-  revalidatePath('/admin/products');
-  redirect('/admin/products');
+revalidatePath('/admin/products');
+revalidatePath(`/admin/products/${id}/edit`);
+
+// 👉 QUAY VỀ LIST
+redirect('/admin/products');
 }
 
 export async function deleteProduct(formData: FormData) {

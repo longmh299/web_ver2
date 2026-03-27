@@ -82,7 +82,7 @@ export default function AboutPage() {
       {/* ===== HERO ===== */}
       <section className="relative">
         <img
-          src="/images/banner2.jpg"
+          src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1774489339/hero_banner_u2ziwq.png"
           className="absolute inset-0 w-full h-full object-cover"
         />
 

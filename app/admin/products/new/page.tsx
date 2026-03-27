@@ -168,7 +168,60 @@ export default async function NewProductPage() {
               <div><label className="block text-sm font-medium">Vật liệu (material)</label><input name="material" className="mt-1 w-full rounded-lg border px-3 py-2" /></div>
             </div>
           </div>
+          {/* Card 4: Bảng thông số nâng cao */}
+          <div className="rounded-2xl border bg-white shadow-sm">
+            <div className="border-b px-5 py-3 font-medium">
+              Bảng thông số nâng cao
+            </div>
+
+            <div className="p-5 space-y-4">
+
+              {/* Columns */}
+              <div>
+                <label className="block text-sm font-medium">Model (các cột)</label>
+                <div id="specColumnsWrap" className="space-y-2"></div>
+                <button type="button" id="addColumnBtn" className="text-sm text-blue-600">
+                  + Thêm model
+                </button>
+              </div>
+
+              {/* Rows */}
+              <div>
+                <label className="block text-sm font-medium">Thông số</label>
+                <div id="specRowsWrap" className="space-y-2"></div>
+
+                <button
+                  type="button"
+                 id="addRowBtn"
+                  className="text-sm text-blue-600"
+                >
+                  + Thêm model
+                </button>
+              </div>
+
+              {/* hidden input */}
+              <input type="hidden" name="specTable" id="specTableInput" />
+
+            </div>
+          </div>
+          {/* Card 5: FAQ */}
+          <div className="rounded-2xl border bg-white shadow-sm">
+            <div className="border-b px-5 py-3 font-medium">
+              Câu hỏi thường gặp (FAQ)
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div id="faqWrap" className="space-y-3"></div>
+
+              <button type="button" id="addFaqBtn" className="text-sm text-blue-600">
+                + Thêm câu hỏi
+              </button>
+
+              <input type="hidden" name="productFAQ" id="faqInput" />
+            </div>
+          </div>
         </section>
+
 
         {/* Cột phải: SEO */}
         <aside className="space-y-6">
@@ -220,19 +273,30 @@ export default async function NewProductPage() {
   const metaTitleCount = $('#metaTitleCount');
   const metaDescCount = $('#metaDescCount');
 
+  // NEW ELEMENTS
+  const specColumnsWrap = document.getElementById('specColumnsWrap');
+  const specRowsWrap = document.getElementById('specRowsWrap');
+  const specTableInput = document.getElementById('specTableInput');
+  const faqWrap = document.getElementById('faqWrap');
+  const faqInput = document.getElementById('faqInput');
+
   let dirty = false;
-  const markDirty = ()=>{ dirty = true; };
+  const markDirty = function(){ dirty = true; };
 
   // ---------- Auto slug ----------
-  const toSlug = (s) => s
-    .toLowerCase()
-    .normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'')
-    .replace(/[^a-z0-9\\s-]/g,'')
-    .trim()
-    .replace(/[\\s_-]+/g,'-')
-    .replace(/^-+|-+$/g,'');
+  const toSlug = function(s){
+    return s
+      .toLowerCase()
+      .normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'')
+      .replace(/[^a-z0-9\\s-]/g,'')
+      .trim()
+      .replace(/[\\s_-]+/g,'-')
+      .replace(/^-+|-+$/g,'');
+  };
+
   let lastAutoSlug = '';
-  const syncSlug = ()=>{
+
+  const syncSlug = function(){
     if (!nameEl) return;
     const base = toSlug(nameEl.value || '');
     if (slugEl && (slugEl.value === '' || slugEl.value === lastAutoSlug)) {
@@ -241,11 +305,12 @@ export default async function NewProductPage() {
       if (slugHint) slugHint.textContent = base ? 'Slug gợi ý: ' + base : '';
     }
   };
-  if (nameEl) nameEl.addEventListener('input', ()=>{ syncSlug(); markDirty(); });
-  if (slugEl) slugEl.addEventListener('input', ()=>{ markDirty(); });
+
+  if (nameEl) nameEl.addEventListener('input', function(){ syncSlug(); markDirty(); });
+  if (slugEl) slugEl.addEventListener('input', markDirty);
 
   // ---------- Video preview ----------
-  const toYouTubeEmbed = (u)=>{
+  const toYouTubeEmbed = function(u){
     try {
       const url = new URL(u);
       if (/^(www\\.)?youtube\\.com$/i.test(url.hostname) && url.searchParams.get('v')) {
@@ -257,14 +322,19 @@ export default async function NewProductPage() {
     } catch {}
     return null;
   };
-  const isVideoFile = (u)=>/\\.(mp4|webm|ogg)(\\?.*)?$/i.test(u) || /\\/video\\/upload\\//.test(u);
 
-  const updateVideo = ()=>{
+  const isVideoFile = function(u){
+    return /\\.(mp4|webm|ogg)(\\?.*)?$/i.test(u) || /\\/video\\/upload\\//.test(u);
+  };
+
+  const updateVideo = function(){
     if (!videoInput || !videoWrap || !ytPreview || !mp4Preview) return;
+
     const raw = (videoInput.value || '').trim();
     ytPreview.classList.add('hidden');
     mp4Preview.classList.add('hidden');
     videoWrap.classList.add('hidden');
+
     if (!raw) return;
 
     const yt = toYouTubeEmbed(raw);
@@ -274,45 +344,137 @@ export default async function NewProductPage() {
       videoWrap.classList.remove('hidden');
       return;
     }
+
     if (isVideoFile(raw)) {
       mp4Preview.src = raw;
       mp4Preview.classList.remove('hidden');
       videoWrap.classList.remove('hidden');
-      return;
     }
   };
+
   if (videoInput) {
-    videoInput.addEventListener('input', ()=>{ updateVideo(); markDirty(); });
+    videoInput.addEventListener('input', function(){ updateVideo(); markDirty(); });
     updateVideo();
   }
 
-  // ---------- SEO counters ----------
-  const paintCount = (el, val, goodMin, goodMax) => {
+  // ---------- SEO ----------
+  const paintCount = function(el, val, min, max){
     const len = val.length;
-    const ok = len>=goodMin && len<=goodMax;
+    const ok = len>=min && len<=max;
     el.textContent = len + ' ký tự' + (ok ? ' (tốt)' : '');
     el.style.color = ok ? '#16a34a' : '#6b7280';
   };
-  const tickSEO = ()=>{
+
+  const tickSEO = function(){
     if (metaTitle && metaTitleCount) paintCount(metaTitleCount, metaTitle.value, 50, 60);
     if (metaDescription && metaDescCount) paintCount(metaDescCount, metaDescription.value, 140, 160);
   };
-  if (metaTitle) metaTitle.addEventListener('input', ()=>{ tickSEO(); markDirty(); });
-  if (metaDescription) metaDescription.addEventListener('input', ()=>{ tickSEO(); markDirty(); });
+
+  if (metaTitle) metaTitle.addEventListener('input', function(){ tickSEO(); markDirty(); });
+  if (metaDescription) metaDescription.addEventListener('input', function(){ tickSEO(); markDirty(); });
   tickSEO();
 
-  // ---------- Warn on leave ----------
-  window.addEventListener('beforeunload', (e)=>{
+  // ---------- SPEC TABLE ----------
+  const addColumn = function(){
+    if (!specColumnsWrap) return;
+    const input = document.createElement('input');
+    input.placeholder = 'Tên model';
+    input.className = 'w-full border rounded px-3 py-2';
+    specColumnsWrap.appendChild(input);
+  };
+
+  const addRow = function(){
+    if (!specRowsWrap) return;
+
+    const row = document.createElement('div');
+    row.className = 'grid gap-2';
+
+    row.innerHTML =
+      '<input placeholder="Tên thông số" class="border px-2 py-1 rounded"/>' +
+      '<div class="values flex gap-2 flex-wrap"></div>' +
+      '<button type="button" class="addVal text-xs text-blue-500">+ thêm giá trị</button>';
+
+    const valuesWrap = row.querySelector('.values');
+    const addValBtn = row.querySelector('.addVal');
+
+    addValBtn.onclick = function(){
+      const valInput = document.createElement('input');
+      valInput.className = 'border px-2 py-1 rounded';
+      valuesWrap.appendChild(valInput);
+    };
+
+    specRowsWrap.appendChild(row);
+  };
+
+  const addFaq = function(){
+    if (!faqWrap) return;
+
+    const item = document.createElement('div');
+    item.className = 'space-y-1';
+
+    item.innerHTML =
+      '<input placeholder="Câu hỏi" class="w-full border px-3 py-2 rounded"/>' +
+      '<input placeholder="Trả lời" class="w-full border px-3 py-2 rounded"/>';
+
+    faqWrap.appendChild(item);
+  };
+
+  document.getElementById('addColumnBtn')?.addEventListener('click', addColumn);
+  document.getElementById('addRowBtn')?.addEventListener('click', addRow);
+  document.getElementById('addFaqBtn')?.addEventListener('click', addFaq);
+
+  // ---------- SUBMIT ----------
+  if (form) {
+    form.addEventListener('submit', function(){
+      dirty = false;
+      submitBtn && submitBtn.setAttribute('disabled','true');
+
+      // spec table
+      const columns = Array.from(specColumnsWrap?.querySelectorAll('input') || []).map(function(i){
+        return i.value;
+      });
+
+      const rows = Array.from(specRowsWrap?.children || []).map(function(row){
+        const inputs = row.querySelectorAll('input');
+
+        return {
+          label: inputs[0] ? inputs[0].value : '',
+          values: Array.from(inputs).slice(1).map(function(i){
+            return i.value;
+          })
+        };
+      });
+
+      if (specTableInput) {
+        specTableInput.value = JSON.stringify({ columns: columns, rows: rows });
+      }
+
+      // faq
+      const faq = Array.from(faqWrap?.children || []).map(function(item){
+        const inputs = item.querySelectorAll('input');
+
+        return {
+          question: inputs[0] ? inputs[0].value : '',
+          answer: inputs[1] ? inputs[1].value : ''
+        };
+      });
+
+      if (faqInput) {
+        faqInput.value = JSON.stringify(faq);
+      }
+    });
+  }
+
+  // ---------- Warn ----------
+  window.addEventListener('beforeunload', function(e){
     if (dirty) { e.preventDefault(); e.returnValue = ''; }
   });
-  if (form) {
-    form.addEventListener('submit', ()=>{ dirty = false; submitBtn?.setAttribute('disabled','true'); });
-  }
 
   // init
   syncSlug();
+
 })();
-      `}</Script>
+`}</Script>
     </div>
   );
 }

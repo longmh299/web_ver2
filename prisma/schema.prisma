@@ -29,6 +29,7 @@ model Category {
   children        Category[] @relation("CategoryToChildren")
   products        Product[]
   isFeatured Boolean @default(false)
+  
   @@index([parentId])
   @@index([name])
 }
@@ -39,6 +40,7 @@ model Product {
   name            String
   short           String?
   description     String?
+  specTable    Json?    // nullable
   sku             String?            @unique
   price           Int?
   isFeatured      Boolean            @default(false)
@@ -64,7 +66,7 @@ model Product {
   category        Category?          @relation(fields: [categoryId], references: [id])
   attributes      ProductAttribute[]
   images          ProductImage[]
-
+  faqs Json?
   @@index([categoryId])
   @@index([name])
 }
@@ -167,3 +169,12 @@ enum EntityType {
   category
   postCategory
 }
+// model ProductFAQ {
+//   id        Int     @id @default(autoincrement())
+//   question  String
+//   answer    String
+//   productId Int
+//   product   Product @relation(fields: [productId], references: [id])
+
+//   @@index([productId])
+// }

@@ -5,7 +5,9 @@ import { prisma } from "@/lib/prisma";
 import TickerBar from "@/components/TickerBar";
 import FeaturedSlider from "@/components/FeaturedSlider";
 
-export const dynamic = "force-dynamic";
+import { cache } from "react";
+
+export const revalidate = 60;
 export const runtime = "nodejs";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mcbrother.net";
@@ -34,109 +36,106 @@ function fmtVND(n?: number | null) {
   }
 }
 
-/* ---------- DATA ---------- */
-async function getHomepageData() {
-  const featured = await prisma.product.findMany({
-    where: { published: true, isFeatured: true },
-    orderBy: [{ createdAt: "desc" }],
-    take: 10,
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      short: true,
-      coverImage: true,
-      price: true,
-      createdAt: true,
-    },
-  });
+/* ================= DATA ================= */
 
-  const latestIfEmpty =
-    featured.length === 0
-      ? await prisma.product.findMany({
-        where: { published: true },
-        orderBy: [{ createdAt: "desc" }],
-        take: 10,
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          short: true,
-          coverImage: true,
-          price: true,
-          createdAt: true,
-        },
-      })
-      : [];
+// 🔥 cache toàn bộ homepage
+const getHomepageData = cache(async () => {
+  const [
+    featured,
+    categoriesHome,
+    categories,
+    posts,
+  ] = await Promise.all([
 
-  const categoriesHome = await prisma.category.findMany({
-    where: {
-      isFeatured: true,
-    },
-    orderBy: {
-      order: "asc"
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      banner: true,
-      ogImage: true,
-      metaDescription: true,
-      children: true
-    }
-  });
-  const categories = await prisma.category.findMany({
-    where: {
-      parentId: null, // 🔥 chỉ lấy danh mục cha
-    },
-    orderBy: {
-      order: "asc",
-    },
-    include: {
-      children: {
-        orderBy: { order: "asc" },
-        include: {
-          children: true
+    prisma.product.findMany({
+      where: { published: true, isFeatured: true },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        short: true,
+        coverImage: true,
+        price: true,
+      },
+    }),
 
+    prisma.category.findMany({
+      where: { isFeatured: true },
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        banner: true,
+        ogImage: true,
+        metaDescription: true,
+      },
+    }),
 
+    prisma.category.findMany({
+      where: { parentId: null },
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        children: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
         },
       },
-    },
-  });
-  const posts = await prisma.post.findMany({
-    where: {
-      published: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 3,
-    include: {
-      category: true, // 👈 để dùng post.category?.name
-    },
-  });
+    }),
+
+    prisma.post.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        coverImage: true,
+        excerpt: true,
+        createdAt: true,
+        category: {
+          select: { name: true },
+        },
+      },
+    }),
+  ]);
+
+  // 🔥 fallback nếu không có featured
+  let products = featured;
+
+  if (featured.length === 0) {
+    products = await prisma.product.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        short: true,
+        coverImage: true,
+        price: true,
+      },
+    });
+  }
+
   return {
-    products: featured.length ? featured : latestIfEmpty,
-    categories, categoriesHome,
+    products,
+    categories,
+    categoriesHome,
     posts,
   };
-}
+});
 
-const categoryImages: Record<string, string[]> = {
-  "thuc-pham": [
-    "/images/food1.jpg",
-    "/images/food2.jpg",
-  ],
-  "duoc-pham": [
-    "/images/pharma1.jpg",
-    "/images/pharma2.jpg",
-  ],
-  "dong-goi": [
-    "/images/pack1.jpg",
-    "/images/pack2.jpg",
-  ],
-};
 export default async function HomePage() {
   const { products, categories, categoriesHome, posts } = await getHomepageData();
   return (
@@ -244,20 +243,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ===== QUOTE ===== */}
-      <section className="relative py-16 text-center text-white">
-        <img
-          src="\images\banner2.jpg"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-[var(--color-primary)]/80" />
-
-        <div className="relative max-w-3xl mx-auto px-4">
-          <p className="text-[16px] italic leading-relaxed">
-            “Giải pháp phù hợp cho doanh nghiệp sản xuất – dễ triển khai và tối ưu hiệu suất.”
-          </p>
-        </div>
-      </section>
+     {/* <section className="py-12 bg-gray-50 text-center">
+  <p className="text-lg italic text-gray-700 max-w-2xl mx-auto">
+    “Giải pháp phù hợp cho doanh nghiệp sản xuất – dễ triển khai và tối ưu hiệu suất.”
+  </p>
+</section> */}
 
       {/* ===== SOLUTION ===== */}
       <section className="bg-[var(--color-primary)] text-white py-14">

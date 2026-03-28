@@ -119,29 +119,41 @@ export default function Header({ categories = [] }: { categories: Cat[] }) {
                               </Link>
 
                               <div className="grid grid-cols-6 gap-6">
-                                {sub.children?.map((child) => (
-                                  <Link
-                                    key={child.id}
-                                    href={`/${child.slug}`}
-                                    className="text-center group"
-                                  >
-                                    <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border border-gray-200 bg-white
-                                      shadow-sm group-hover:shadow-md transition-all duration-200 group-hover:scale-105 group-hover:border-[var(--color-primary)]">
+  {sub.children?.map((child) => (
+    <Link
+      key={child.id}
+      href={`/${child.slug}`}
+      className="text-center group"
+    >
+      {/* IMAGE */}
+      <div
+        className="relative w-36 h-36 mx-auto rounded-full overflow-hidden 
+        border-2 border-[var(--color-primary)] bg-white
+        shadow-sm transition-all duration-300 ease-out
 
-                                      <Image
-                                        src={child.ogImage || "/images/no-image.png"}
-                                        alt={child.name}
-                                        fill
-                                        className="object-cover"
-                                      />
-                                    </div>
+        hover:border-[var(--color-accent)]
+        hover:scale-105
+        hover:shadow-[0_10px_25px_rgba(0,0,0,0.15)]"
+      >
+        <Image
+          src={child.ogImage || "/images/no-image.png"}
+          alt={child.name}
+          fill
+          className="object-cover"
+        />
+      </div>
 
-                                    <div className="text-sm mt-3 text-gray-700 group-hover:text-[var(--color-primary)] line-clamp-2">
-                                      {child.name}
-                                    </div>
-                                  </Link>
-                                ))}
-                              </div>
+      {/* TEXT */}
+      <div
+        className="text-sm mt-3 text-gray-700 line-clamp-2
+        transition-colors duration-300
+        hover:text-[var(--color-accent)]"
+      >
+        {child.name}
+      </div>
+    </Link>
+  ))}
+</div>
 
                             </div>
                           ))}

@@ -1,4 +1,5 @@
 // app/gioi-thieu/page.tsx
+import { Quote } from "lucide-react";
 import type { Metadata } from "next";
 
 /* ================= DATA ================= */
@@ -45,28 +46,36 @@ const METHODS = [
 
 const TESTIMONIALS = [
   {
-    name: "Xưởng bánh kẹo – Hà Nội",
+    name: "Nguyễn Văn Hùng",
+    role: "Chủ xưởng chế biến thực phẩm - Bình Dương",
     content:
-      "Sau khi triển khai hệ thống đóng gói, bên mình giảm ~30% thời gian vận hành.",
+      "Bên mình đầu tư dây chuyền từ MCBROTHER, máy chạy ổn định, ít lỗi vặt. Sau 3 tháng năng suất tăng rõ rệt.",
     rating: 5,
+    avatar: "https://res.cloudinary.com/ds55hfvx4/image/upload/v1774666029/ChatGPT_Image_09_46_18_28_thg_3_2026_kjrgyr.png",
   },
   {
-    name: "Doanh nghiệp thực phẩm – Bình Dương",
+    name: "Trần Minh Tuấn",
+    role: "Doanh nghiệp đóng gói - Long An",
     content:
-      "Giải pháp phù hợp, giúp tối ưu chi phí nhân công đáng kể.",
+      "Được tư vấn đúng nhu cầu nên không bị dư công suất. Lắp đặt nhanh, kỹ thuật hỗ trợ nhiệt tình.",
     rating: 5,
+    avatar: "https://res.cloudinary.com/ds55hfvx4/image/upload/v1774666058/Gemini_Generated_Image_doqexhdoqexhdoqe_qoxdid.png",
   },
   {
-    name: "Xưởng chế biến nông sản – Đà Lạt",
+    name: "Lê Quốc Bảo",
+    role: "Xưởng sản xuất bánh kẹo - Đồng Nai",
     content:
-      "Hệ thống vận hành ổn định, dễ sử dụng.",
+      "Máy vận hành êm, dễ sử dụng. Nhân viên bên mình chỉ cần hướng dẫn 1-2 buổi là chạy được.",
     rating: 4,
+    avatar: "https://res.cloudinary.com/ds55hfvx4/image/upload/v1774666254/ChatGPT_Image_09_47_37_28_thg_3_2026_iaeuek.png",
   },
   {
-    name: "Cơ sở sản xuất nhỏ – TP.HCM",
+    name: "Phạm Thị Lan",
+    role: "Cơ sở chế biến nông sản - Đắk Lắk",
     content:
-      "Dễ vận hành, phù hợp quy mô nhỏ.",
-    rating: 4,
+      "Chi phí hợp lý so với chất lượng. Bên kỹ thuật hỗ trợ từ xa rất nhanh khi cần.",
+    rating: 5,
+    avatar: "https://res.cloudinary.com/ds55hfvx4/image/upload/v1774666239/Gemini_Generated_Image_uuglokuuglokuugl_oixcvh.png",
   },
 ];
 
@@ -179,29 +188,46 @@ export default function AboutPage() {
             {TESTIMONIALS.map((t, i) => (
               <div
                 key={i}
-                className="bg-white border border-gray-200 rounded-xl p-6 text-left shadow-sm hover:shadow-xl transition hover:border-[var(--color-primary)]"
+                className="bg-white border border-gray-200 rounded-xl p-5 
+      shadow-sm hover:shadow-xl transition-all duration-300"
               >
-                <div className="flex items-center gap-3 mb-3">
+                {/* HEADER */}
+                <div className="flex items-center gap-3 mb-4">
                   <img
-                    src={`https://i.pravatar.cc/40?img=${i + 10}`}
-                    className="w-10 h-10 rounded-full"
+                    src={t.avatar}
+                    alt={t.name}
+                    className="w-12 h-12 rounded-full object-cover"
                   />
-                  <div className="font-medium">{t.name}</div>
+
+                  <div>
+                    <div className="font-semibold text-sm text-gray-800">
+                      {t.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {t.role}
+                    </div>
+                  </div>
                 </div>
 
-                <p className="text-gray-600 text-sm leading-relaxed">
-                  "{t.content}"
+                {/* CONTENT */}
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  “{t.content}”
                 </p>
 
-                {/* ⭐ vẫn giữ vàng cho rating → dùng đúng chỗ */}
-                <div className="mt-3 text-yellow-400">
-                  {"★".repeat(t.rating)}
-                  {"☆".repeat(5 - t.rating)}
+                {/* FOOTER */}
+                <div className="flex items-center justify-between">
+                  <div className="text-yellow-400 text-sm">
+                    {"★".repeat(t.rating)}
+                    {"☆".repeat(5 - t.rating)}
+                  </div>
+
+                  <span className="text-xs text-gray-400">
+                    Khách hàng đã xác minh
+                  </span>
                 </div>
               </div>
             ))}
           </div>
-
           {/* CTA */}
           <div className="mt-12">
             <p className="text-gray-600 mb-4">

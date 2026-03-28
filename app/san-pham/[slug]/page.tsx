@@ -2,7 +2,7 @@
 import { prisma } from '@/lib/prisma';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Check } from "lucide-react";
+import { Check, Settings, Zap } from "lucide-react";
 export const dynamic = 'force-dynamic';
 import { ShieldCheck, Truck, BadgeCheck } from "lucide-react";
 import { cache } from "react";
@@ -48,7 +48,7 @@ function cld(url?: string | null, w = 900, h = 600) {
         `/upload/c_fill,g_auto,f_auto,q_auto,w_${w},h_${h}/`
       );
     }
-  } catch {}
+  } catch { }
   return url;
 }
 
@@ -234,11 +234,11 @@ export default async function ProductDetailPage(
     offers:
       typeof p.price === 'number'
         ? {
-            '@type': 'Offer',
-            priceCurrency: 'VND',
-            price: String(p.price),
-            availability: 'https://schema.org/InStock',
-          }
+          '@type': 'Offer',
+          priceCurrency: 'VND',
+          price: String(p.price),
+          availability: 'https://schema.org/InStock',
+        }
         : undefined,
     additionalProperty: additionalProps.map((x) => ({
       '@type': 'PropertyValue',
@@ -433,20 +433,27 @@ export default async function ProductDetailPage(
               )}
 
               {/* HIGHLIGHT */}
+
+              {/* HIGHLIGHT */}
               <div className="bg-gray-50 border rounded-xl p-4 shadow-sm">
                 <ul className="space-y-2 text-sm text-gray-700">
+
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[var(--color-accent)]" />
+                    <Zap className="w-4 h-4 text-yellow-500" />
                     Công suất ổn định
                   </li>
+
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[var(--color-accent)]" />
+                    <ShieldCheck className="w-4 h-4 text-green-600" />
+
                     Độ bền cao
                   </li>
+
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[var(--color-accent)]" />
+                    <Settings className="w-4 h-4 text-blue-600" />
                     Phù hợp sản xuất
                   </li>
+
                 </ul>
               </div>
 
@@ -565,29 +572,107 @@ export default async function ProductDetailPage(
               </h2>
 
               <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {related.map((rp) => (
-                  <Link key={rp.id} href={`/san-pham/${rp.slug}`}>
-                    <div className="group bg-white border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
+                {related.map((rp) => {
+                  const features =
+                    rp.short
+                      ?.split("\n")
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                      .slice(0, 2) || [];
 
-                      <div className="h-40 bg-gray-100 overflow-hidden">
-                        <img
-                          src={rp.coverImage || "/images/placeholder.jpg"}
-                          className="w-full h-full object-cover group-hover:scale-105 transition"
-                        />
-                      </div>
+                  return (
+                    <div
+                      key={rp.id}
+                      className="group flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-[4px] hover:border-[var(--color-primary)]"
+                    >
+                      {/* IMAGE */}
+                      <Link href={`/san-pham/${rp.slug}`} className="relative block">
+                        <div className="relative h-[180px] bg-white flex items-center justify-center overflow-hidden">
+                          <img
+                            src={rp.coverImage || "/images/placeholder.jpg"}
+                            alt={rp.name}
+                            loading="lazy"
+                            className="max-h-full max-w-full object-contain transition duration-500 group-hover:scale-105"
+                          />
+                        </div>
+                      </Link>
 
-                      <div className="p-4">
-                        <h3 className="text-sm font-semibold line-clamp-2">
-                          {rp.name}
-                        </h3>
+                      {/* CONTENT */}
+                      <div className="flex flex-col p-4">
 
-                        <div className="mt-2 text-red-500 text-sm font-medium">
+                        {/* TITLE */}
+                        <Link href={`/san-pham/${rp.slug}`}>
+                          <h3 className="text-[14px] font-semibold leading-snug text-gray-800 line-clamp-2 hover:text-[var(--color-primary)] transition">
+                            {rp.name}
+                          </h3>
+                        </Link>
+
+                        {/* FEATURES */}
+
+                        <div className="mt-2 min-h-[40px]">
+                          {features.length > 0 && (
+                            <ul className="text-[12px] text-gray-600 space-y-1">
+                              {features.map((f, i) => {
+                                // chọn icon theo nội dung
+                                let Icon = Settings;
+
+                                if (f.toLowerCase().includes("công suất")) Icon = Zap;
+                                else if (f.toLowerCase().includes("bền")) Icon = ShieldCheck;
+
+                                return (
+                                  <li key={i} className="flex items-start gap-2">
+                                    <Icon className="w-3.5 h-3.5 mt-[2px] shrink-0 text-[var(--color-primary)]" />
+                                    <span className="line-clamp-1 leading-snug">{f}</span>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </div>
+
+                        {/* PRICE */}
+                        <div className="mt-2 text-[14px] font-semibold text-[var(--color-primary-dark)]">
                           <PriceInline price={rp.price} />
+                        </div>
+
+                        {/* TRUST */}
+                        <div className="mt-2 text-[11px] text-gray-500 space-y-1">
+
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-[var(--color-primary)]" />
+                            <span>Bảo hành 12 tháng</span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Truck className="w-3.5 h-3.5 shrink-0 text-[var(--color-primary)]" />
+                            <span>Giao hàng toàn quốc</span>
+                          </div>
+
+                        </div>
+
+                        {/* CTA */}
+                        <div className="pt-3 flex gap-2 mt-auto">
+
+                          <Link
+                            href={`/san-pham/${rp.slug}`}
+                            className="flex-1 text-center py-2 rounded border border-gray-200 text-[12px] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition"
+                          >
+                            Xem chi tiết
+                          </Link>
+
+                          <a
+                            href="https://zalo.me/0834551888"
+                            target="_blank"
+                            className="flex-1 text-center py-2 rounded bg-[var(--color-primary)] text-white text-[12px] font-semibold hover:bg-[var(--color-primary-dark)] transition"
+                          >
+                            Báo giá
+                          </a>
+
                         </div>
                       </div>
                     </div>
-                  </Link>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

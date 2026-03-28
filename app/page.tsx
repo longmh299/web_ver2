@@ -6,6 +6,7 @@ import TickerBar from "@/components/TickerBar";
 import FeaturedSlider from "@/components/FeaturedSlider";
 
 import { cache } from "react";
+import { PhoneCall, Settings, TrendingUp, Truck, Zap } from "lucide-react";
 
 export const revalidate = 60;
 export const runtime = "nodejs";
@@ -243,35 +244,81 @@ export default async function HomePage() {
         </div>
       </section>
 
-     {/* <section className="py-12 bg-gray-50 text-center">
+      {/* <section className="py-12 bg-gray-50 text-center">
   <p className="text-lg italic text-gray-700 max-w-2xl mx-auto">
     “Giải pháp phù hợp cho doanh nghiệp sản xuất – dễ triển khai và tối ưu hiệu suất.”
   </p>
 </section> */}
 
       {/* ===== SOLUTION ===== */}
-      <section className="bg-[var(--color-primary)] text-white py-14">
-        <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
+      <div className="bg-gradient-to-r from-[#1fa2a6] to-[#2bb3b8] text-white py-14">
+        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
 
+          {/* LEFT */}
           <div>
-            <h2 className="text-[20px] font-semibold mb-3">
-              Giải pháp tổng thể cho nhà máy
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              Giải pháp trọn gói cho nhà máy của bạn
             </h2>
 
-            <ul className="text-[14px] space-y-2 text-white/90">
-              <li>✔ Tối ưu vận hành</li>
-              <li>✔ Tăng năng suất</li>
-              <li>✔ Dễ mở rộng hệ thống</li>
+            <p className="text-white/90 mb-6">
+              Tư vấn – thiết kế – lắp đặt dây chuyền sản xuất phù hợp với nhu cầu thực tế
+            </p>
+
+            <ul className="space-y-3 text-sm">
+
+              <li className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-yellow-300" />
+                Thiết kế theo yêu cầu
+              </li>
+
+              <li className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-yellow-300" />
+                Lắp đặt tận nơi
+              </li>
+
+              <li className="flex items-center gap-2">
+                <PhoneCall className="w-5 h-5 text-yellow-300" />
+                Tư vấn miễn phí 24/7
+              </li>
+
             </ul>
 
-            <button className="mt-4 bg-white text-black px-4 py-2 text-base font-semibold font-medium">
-              Xem thêm
-            </button>
+            {/* BUTTON */}
+            <div className="mt-6 flex gap-3">
+              <a
+                href="/lien-he"
+                className="px-6 py-3 rounded-lg bg-white text-[var(--color-primary)] font-semibold hover:bg-gray-100 transition"
+              >
+                Nhận báo giá
+              </a>
+
+              <a
+                href="tel:0900000000"
+                className="px-6 py-3 rounded-lg border border-white/50 hover:bg-white/10 transition"
+              >
+                Gọi ngay
+              </a>
+            </div>
           </div>
 
-          <div className="aspect-video bg-black/30 rounded" />
+          {/* RIGHT (optional image) */}
+          <div className="hidden md:block relative">
+
+            {/* glow nền */}
+            <div className="absolute -inset-4 bg-white/10 rounded-2xl blur-2xl"></div>
+
+            {/* image */}
+            <img
+              src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1774664686/banner2_en4elx.jpg"
+              alt="solution"
+              className="relative z-10 w-full max-h-[260px] object-cover 
+    rounded-2xl shadow-xl"
+            />
+
+          </div>
+
         </div>
-      </section>
+      </div>
 
       {/* ===== BLOG ===== */}
       <section className="py-14">

@@ -1,3 +1,4 @@
+import { Settings, ShieldCheck, Truck, Wrench } from "lucide-react";
 import Link from "next/link";
 
 export type ProductCardData = {
@@ -85,9 +86,14 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
           {features.length > 0 ? (
             <ul className="text-[13px] text-gray-600 space-y-1">
               {features.map((f, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="text-[var(--color-primary)] text-xs">✔</span>
-                  <span className="line-clamp-1 leading-snug">{f}</span>
+                <li key={i} className="flex items-start gap-2">
+
+                  <Wrench className="w-4 h-4 shrink-0 mt-[2px] text-[var(--color-accent)]" />
+
+                  <span className="line-clamp-1 leading-snug">
+                    {f}
+                  </span>
+
                 </li>
               ))}
             </ul>
@@ -104,9 +110,15 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
         </div>
 
         {/* TRUST */}
-        <div className="mt-2 text-[12px] text-gray-500 space-y-1">
-          <div>✔ Bảo hành 12 tháng</div>
-          <div>✔ Giao hàng toàn quốc</div>
+
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
+          Bảo hành 12 tháng
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Truck className="w-4 h-4 text-[var(--color-accent)]" />
+          Giao hàng toàn quốc
         </div>
 
         {/* CTA */}

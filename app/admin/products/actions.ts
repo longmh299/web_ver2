@@ -158,11 +158,8 @@ export async function updateProduct(formData: FormData) {
   };
 
   await prisma.product.update({ where: { id }, data });
-revalidatePath('/admin/products');
-revalidatePath(`/admin/products/${id}/edit`);
-
-// 👉 QUAY VỀ LIST
-redirect('/admin/products');
+  revalidatePath('/admin/products');
+  redirect('/admin/products');
 }
 
 export async function deleteProduct(formData: FormData) {

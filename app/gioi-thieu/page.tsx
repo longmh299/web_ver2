@@ -89,58 +89,237 @@ export default function AboutPage() {
     <main className="bg-[var(--color-bg)] text-slate-800">
 
       {/* ===== HERO ===== */}
-      <section className="relative">
+      <section className="relative overflow-hidden bg-[#dff6f7]">
+
+        {/* background blur */}
         <img
           src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1774489339/hero_banner_u2ziwq.png"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="
+      absolute inset-0
+      w-full h-full
+      object-cover
+      opacity-20
+      scale-110
+    "
         />
 
-        {/* 🔥 đổi overlay sang màu brand */}
-        <div className="absolute inset-0 bg-[var(--color-primary)]/80" />
+        {/* overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent" />
 
-        <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 py-24 text-center text-white">
-          <h1 className="text-[34px] md:text-[42px] font-semibold">
-            {COMPANY.name}
-          </h1>
+        <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 min-h-[720px] flex items-center">
 
-          <p className="mt-4 text-[16px] text-white/90 max-w-2xl mx-auto">
-            {COMPANY.slogan}
-          </p>
-        </div>
-      </section>
+          {/* LEFT */}
+          <div className="w-full lg:w-1/2 z-10">
+            <h1 className="text-[42px] md:text-[56px] leading-tight font-bold text-slate-800">
+              {COMPANY.name}
+            </h1>
 
-      {/* ===== ABOUT ===== */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-
-          <div>
-            <h2 className="text-[24px] font-semibold text-[var(--color-primary)]">
-              Về chúng tôi
-            </h2>
-
-            <p className="mt-4 text-gray-600 leading-relaxed">
-              {COMPANY.summary}
+            <p className="mt-5 text-lg text-slate-600 max-w-xl leading-relaxed">
+              {COMPANY.slogan}
             </p>
           </div>
 
-          <div className="h-[280px] bg-gray-200 rounded-xl" />
-        </div>
+          {/* RIGHT */}
 
-        {/* stats */}
-        <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4 mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {STATS.map((s) => (
-            <div
-              key={s.label}
-              className="bg-white border border-gray-200 rounded-xl p-6 text-center shadow-sm hover:shadow-xl transition"
-            >
-              <div className="text-[26px] font-semibold text-[var(--color-primary)]">
-                {s.value}
-              </div>
-              <div className="text-sm text-gray-600">{s.label}</div>
-            </div>
-          ))}
+
         </div>
       </section>
+
+
+{/* ===== ABOUT ===== */}
+<section className="py-20 bg-white">
+
+  <div
+    className="
+      max-w-7xl xl:max-w-[1280px]
+      mx-auto
+      px-4
+      grid
+      lg:grid-cols-[1.15fr_0.85fr]
+      gap-14
+      items-start
+    "
+  >
+
+    {/* LEFT */}
+    <div>
+
+      <h2 className="text-[24px] font-semibold text-[var(--color-primary)]">
+        Về chúng tôi
+      </h2>
+
+      <p className="mt-4 text-gray-600 leading-relaxed">
+        {COMPANY.summary}
+      </p>
+
+      <div
+        className="
+          mt-4
+          text-gray-600
+          leading-relaxed
+          space-y-3
+          text-[15px]
+        "
+      >
+
+        <p>
+          Công ty cổ phần thiết bị MCBROTHER được thành lập ngày
+          10 tháng 4 năm 2013 với ngành nghề kinh doanh chính là:
+        </p>
+
+        <ul className="list-disc pl-5 space-y-1">
+
+          <li>
+            Máy, dây chuyền chế biến, đóng gói thực phẩm;
+          </li>
+
+          <li>
+            Máy chế biến, đóng gói dược phẩm;
+          </li>
+
+          <li>
+            Máy chế biến, đóng gói hóa mỹ phẩm;
+          </li>
+
+          <li>
+            Máy chế biến, đóng gói cho các ngành khác.
+          </li>
+
+        </ul>
+
+        <p>
+          Với phương châm{" "}
+          <strong>
+            "Chất lượng - Chuẩn giá cả - Chuẩn dịch vụ"
+          </strong>
+          , chúng tôi luôn cố gắng hết mình để đem đến sự hài lòng
+          cho Quý khách hàng và đã được sự ủng hộ tin tưởng trong
+          thời gian qua.
+        </p>
+
+        <p>
+          Với tinh thần cầu thị và học hỏi, đội ngũ chúng tôi luôn
+          không ngừng hoàn thiện và nâng cao trình độ chuyên môn để
+          đáp ứng nhu cầu phục vụ khách hàng tốt nhất.
+        </p>
+
+        <p>
+          Chúng tôi xin chân thành cảm ơn các khách hàng đã và đang
+          tin cậy hợp tác cùng chúng tôi.
+        </p>
+
+        <p>
+          Chúng tôi luôn chào đón mở rộng hợp tác cùng Quý khách.
+        </p>
+
+        <p className="font-medium">
+          Xin chân thành cảm ơn!
+        </p>
+
+      </div>
+
+    </div>
+
+    {/* RIGHT */}
+    <div className="lg:sticky lg:top-24">
+
+      <div
+        className="
+          relative
+          overflow-hidden
+          rounded-2xl
+          border
+          border-gray-100
+          shadow-xl
+          bg-white
+        "
+      >
+
+        <img
+          src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1778229923/ChatGPT_Image_15_45_05_8_thg_5_2026_gvhmuh.png"
+          alt="MCBROTHER JSC"
+          className="
+            w-full
+            h-auto
+            object-contain
+          "
+        />
+
+        {/* overlay */}
+        <div
+          className="
+            absolute inset-0
+            bg-gradient-to-t
+            from-slate-900/10
+            via-transparent
+            to-transparent
+            pointer-events-none
+          "
+        />
+
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* ===== STATS ===== */}
+  <div
+    className="
+      max-w-7xl xl:max-w-[1280px]
+      mx-auto
+      px-4
+      mt-14
+      grid
+      grid-cols-2
+      md:grid-cols-4
+      gap-6
+    "
+  >
+
+    {STATS.map((s) => (
+
+      <div
+        key={s.label}
+        className="
+          rounded-2xl
+          border
+          border-gray-200
+          bg-white
+          p-6
+          text-center
+          shadow-sm
+          transition-all
+          duration-300
+          hover:-translate-y-1
+          hover:shadow-xl
+        "
+      >
+
+        <div
+          className="
+            text-[28px]
+            font-semibold
+            text-[var(--color-primary)]
+          "
+        >
+          {s.value}
+        </div>
+
+        <div className="mt-1 text-sm text-gray-600">
+          {s.label}
+        </div>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</section>
+
+
+
 
       {/* ===== PROCESS ===== */}
       <section className="py-20 bg-white">

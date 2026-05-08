@@ -254,7 +254,7 @@ export default async function ProductDetailPage(
       {/* ===== HERO ===== */}
       <section className="relative">
         <img
-          src="/images/banner2.jpg"
+          src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1778214441/ChatGPT_Image_11_26_29_8_thg_5_2026_vuknuv.png"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/60" />

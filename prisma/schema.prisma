@@ -69,6 +69,8 @@ model Product {
   faqs Json?
   @@index([categoryId])
   @@index([name])
+  @@index([categoryId, createdAt])
+  
 }
 
 model ProductImage {
@@ -169,12 +171,3 @@ enum EntityType {
   category
   postCategory
 }
-// model ProductFAQ {
-//   id        Int     @id @default(autoincrement())
-//   question  String
-//   answer    String
-//   productId Int
-//   product   Product @relation(fields: [productId], references: [id])
-
-//   @@index([productId])
-// }

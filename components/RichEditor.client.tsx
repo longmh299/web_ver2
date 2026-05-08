@@ -141,6 +141,7 @@ export default function RichEditorClient({
           // `,
 
           // valid_styles: { '*': '' },
+          
           content_style: `
             table { border-collapse: collapse; width: 100%; }
             td, th { border: 1px solid #ddd; padding: 8px; }

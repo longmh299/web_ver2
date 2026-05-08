@@ -128,16 +128,59 @@ export default async function ProductsPage({
   return (
     <main className="bg-[var(--color-bg)] text-slate-800">
 
-      {/* ===== HERO ===== */}
-      <section className="relative">
-        <img
-          src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1774489339/hero_banner_u2ziwq.png"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/60" />
+      <section className="relative overflow-hidden min-h-[340px]">
 
-        <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 py-20 text-center text-white">
-          <h1 className="text-[30px] font-semibold">Tất cả sản phẩm</h1>
+        {/* BG */}
+        <img
+          src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1778214441/ChatGPT_Image_11_26_29_8_thg_5_2026_vuknuv.png"
+          className="
+      absolute inset-0
+      w-full h-full
+      object-cover
+      object-center
+    "
+        />
+
+        {/* overlay */}
+        <div
+          className="
+      absolute inset-0
+      bg-gradient-to-r
+      from-slate-900/80
+      via-slate-900/55
+      to-slate-900/20
+    "
+        />
+
+        {/* content */}
+        <div
+          className="
+      relative
+      max-w-7xl xl:max-w-[1280px]
+      mx-auto
+      px-4
+      min-h-[340px]
+      flex
+      items-center
+    "
+        >
+
+          <div className="max-w-2xl text-white">
+
+            <p className="text-cyan-300 font-medium mb-3">
+              Thiết bị công nghiệp
+            </p>
+
+            <h1 className="text-[44px] md:text-[56px] leading-tight font-bold">
+              Tất cả sản phẩm
+            </h1>
+
+            <p className="mt-5 text-white/80 text-lg leading-relaxed">
+              Giải pháp máy chế biến — đóng gói tối ưu cho doanh nghiệp sản xuất thực phẩm.
+            </p>
+
+          </div>
+
         </div>
       </section>
 

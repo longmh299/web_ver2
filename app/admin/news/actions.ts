@@ -1,10 +1,10 @@
-"use server";
-
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import sanitizeHtml from "sanitize-html";
 
-/* helpers */
+/* ================= HELPERS ================= */
+
 function toSlug(s: string) {
   return s
     .toLowerCase()
@@ -13,102 +13,143 @@ function toSlug(s: string) {
     .replace(/[^a-z0-9\s-]/g, "")
     .trim()
     .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-function parseTags(raw: string | null | undefined): string[] {
-  if (!raw) return [];
-  return raw
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean)
-    .slice(0, 30);
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 160);
 }
 
-/* CREATE: giữ nguyên — sau khi tạo xong chuyển sang trang sửa */
+function parseTags(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  return [...new Set(raw.split(",").map(t => t.trim().toLowerCase()).filter(Boolean))].slice(0, 30);
+}
+
+function cleanContent(html: string) {
+  return sanitizeHtml(html, {
+    allowedTags: ["p","h2","h3","ul","ol","li","strong","em","a","img","blockquote","div"],
+    allowedAttributes: {
+      a: ["href"],
+      img: ["src", "alt"],
+      div: ["class"],
+    },
+  });
+}
+
+function getBool(fd: FormData, key: string) {
+  return fd.getAll(key).map(String).pop() === "1";
+}
+
+/* ================= CREATE ================= */
+
 export async function createPost(fd: FormData) {
+  "use server";
+
   const title = String(fd.get("title") ?? "").trim();
   if (!title) throw new Error("Thiếu tiêu đề");
 
-  const slug = (String(fd.get("slug") ?? "").trim() || toSlug(title)).slice(0, 160);
+  let slug = String(fd.get("slug") ?? "").trim();
+  slug = slug ? toSlug(slug) : toSlug(title);
 
-  const post = await prisma.post.create({
-    data: {
-      title,
-      slug,
-      excerpt: String(fd.get("excerpt") ?? "").trim() || null,
-      content: String(fd.get("content") ?? "") || null,
-      coverImage: String(fd.get("coverImage") ?? "").trim() || null,
-      tags: parseTags(String(fd.get("tags"))),
-      published: fd.getAll("published").map(String).pop() === "1",
-      categoryId: fd.get("categoryId") ? Number(fd.get("categoryId")) : null,
-      metaTitle: String(fd.get("metaTitle") ?? "").trim() || null,
-      metaDescription: String(fd.get("metaDescription") ?? "").trim() || null,
-      canonicalUrl: String(fd.get("canonicalUrl") ?? "").trim() || null,
-      ogImage: String(fd.get("ogImage") ?? "").trim() || null,
-      noindex: fd.getAll("noindex").map(String).pop() === "1",
-      nofollow: fd.getAll("nofollow").map(String).pop() === "1",
-    },
-  });
+  const content = cleanContent(String(fd.get("content") ?? ""));
+  const plainText = content.replace(/<[^>]+>/g, "").slice(0, 160);
 
-  revalidatePath("/admin/news");
-  revalidatePath(`/tin-tuc/${post.slug}`, "page");
-  redirect(`/admin/news`);
+  const metaTitle =
+    String(fd.get("metaTitle") ?? "").trim() || title.slice(0, 60);
+
+  const metaDescription =
+    String(fd.get("metaDescription") ?? "").trim() || plainText;
+
+  try {
+    let finalSlug = slug;
+    let i = 1;
+
+    while (await prisma.post.findFirst({ where: { slug: finalSlug } })) {
+      finalSlug = `${slug}-${i++}`;
+    }
+
+    const post = await prisma.post.create({
+      data: {
+        title,
+        slug: finalSlug,
+        excerpt: String(fd.get("excerpt") ?? "").trim() || null,
+        content,
+        coverImage: String(fd.get("coverImage") ?? "").trim() || null,
+        tags: parseTags(String(fd.get("tags"))),
+        published: getBool(fd, "published"),
+        categoryId: fd.get("categoryId") ? Number(fd.get("categoryId")) : null,
+        metaTitle,
+        metaDescription,
+      },
+    });
+
+    revalidatePath("/admin/news");
+    revalidatePath(`/tin-tuc/${post.slug}`);
+    redirect("/admin/news?ok=1");
+
+  } catch (e: any) {
+    redirect(`/admin/news?err=${encodeURIComponent(e.message)}`);
+  }
 }
 
-/* UPDATE: redirect thành công nằm NGOÀI try/catch */
+/* ================= UPDATE ================= */
+
 export async function updatePost(fd: FormData) {
+  "use server";
+
   const id = Number(fd.get("id"));
   if (!Number.isFinite(id)) throw new Error("ID không hợp lệ");
 
   const title = String(fd.get("title") ?? "").trim();
   if (!title) throw new Error("Thiếu tiêu đề");
 
-  const slug = (String(fd.get("slug") ?? "").trim() || toSlug(title)).slice(0, 160);
+  let slug = String(fd.get("slug") ?? "").trim();
+  slug = slug ? toSlug(slug) : toSlug(title);
+
+  const content = cleanContent(String(fd.get("content") ?? ""));
 
   try {
+    let finalSlug = slug;
+    let i = 1;
+
+    while (
+      await prisma.post.findFirst({
+        where: { slug: finalSlug, NOT: { id } },
+      })
+    ) {
+      finalSlug = `${slug}-${i++}`;
+    }
+
     await prisma.post.update({
       where: { id },
       data: {
         title,
-        slug,
-        excerpt: String(fd.get("excerpt") ?? "").trim() || null,
-        content: String(fd.get("content") ?? "") || null,
-        coverImage: String(fd.get("coverImage") ?? "").trim() || null,
+        slug: finalSlug,
+        content,
         tags: parseTags(String(fd.get("tags"))),
-        published: fd.getAll("published").map(String).pop() === "1",
-        categoryId: fd.get("categoryId") ? Number(fd.get("categoryId")) : null,
-        metaTitle: String(fd.get("metaTitle") ?? "").trim() || null,
-        metaDescription: String(fd.get("metaDescription") ?? "").trim() || null,
-        canonicalUrl: String(fd.get("canonicalUrl") ?? "").trim() || null,
-        ogImage: String(fd.get("ogImage") ?? "").trim() || null,
-        noindex: fd.getAll("noindex").map(String).pop() === "1",
-        nofollow: fd.getAll("nofollow").map(String).pop() === "1",
       },
     });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "Lỗi không xác định";
-    redirect(`/admin/news?err=${encodeURIComponent(msg)}`); // chỉ chạy khi thật sự lỗi
-  }
 
-  revalidatePath("/admin/news");
-  redirect("/admin/news?ok=1"); // thành công → flash “ok”
+    revalidatePath("/admin/news");
+    redirect("/admin/news?ok=1");
+
+  } catch (e: any) {
+    redirect(`/admin/news?err=${encodeURIComponent(e.message)}`);
+  }
 }
 
-/* DELETE: có thể giữ nguyên; thêm try/catch nếu muốn flash lỗi riêng */
+/* ================= DELETE ================= */
+
 export async function deletePost(fd: FormData) {
+  "use server"; // 🔥 CÁI QUAN TRỌNG NHẤT
+
   const id = Number(fd.get("id"));
   if (!Number.isFinite(id)) throw new Error("ID không hợp lệ");
 
   try {
-    const deleted = await prisma.post.delete({
-      where: { id },
-      select: { slug: true },
-    });
+    await prisma.post.delete({ where: { id } });
+
     revalidatePath("/admin/news");
-    if (deleted?.slug) revalidatePath(`/tin-tuc/${deleted.slug}`, "page");
     redirect("/admin/news?ok=1");
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "Lỗi không xác định";
-    redirect(`/admin/news?err=${encodeURIComponent(msg)}`);
+
+  } catch (e: any) {
+    redirect(`/admin/news?err=${encodeURIComponent(e.message)}`);
   }
 }

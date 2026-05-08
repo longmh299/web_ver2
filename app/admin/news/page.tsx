@@ -5,7 +5,7 @@ import { deletePost } from "./actions";
 import ConfirmDelete from "@/components/ConfirmDelete";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+
 
 type SearchParams = {
   q?: string;

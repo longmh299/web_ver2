@@ -8,11 +8,11 @@ const nextConfig = {
         has: [
           {
             type: 'host',
-            value: 'www.mcbrother.id.vn',
+            value: 'www.mcbrother.com.vn',
           },
         ],
         // Redirect 301 về bản non-www
-        destination: 'https://mcbrother.id.vn/:path*',
+        destination: 'https://mcbrother.com.vn/:path*',
         permanent: true,
       },
     ];

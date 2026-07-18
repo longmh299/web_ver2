@@ -54,70 +54,112 @@ export default async function CategoryPage(
 ) {
   const { slug } = await params;
 
-  // 🔥 Lấy category + product
   const c = await prisma.category.findUnique({
     where: { slug },
-    include: {
-      products: {
-        where: { published: true, noindex: false },
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          price: true,
-          coverImage: true,
-          short: true,
-          category: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
-    },
   });
 
   if (!c) {
     const r = await prisma.slugRedirect.findUnique({
       where: { fromSlug: slug },
     });
+
     if (r?.entityType === "category") {
       redirect(`/${r.toSlug}`);
     }
+
     notFound();
   }
 
-  // 🔥 Lấy category con cùng cha (chips)
-  const relatedCategories = await prisma.category.findMany({
+  // ==========================
+  // Lấy category con
+  // ==========================
+  const children = await prisma.category.findMany({
     where: {
-      parentId: {
-      not: null,
+      parentId: c.id,
     },
-    },
-    orderBy: {
-      order: "asc",
-    },
+    orderBy: [
+      { order: "asc" },
+      { name: "asc" },
+    ],
     select: {
       id: true,
       name: true,
       slug: true,
+      parentId: true,
+    },
+  });
+
+  // ==========================
+  // Chips
+  // Nếu có con => hiện con
+  // Không có con => hiện anh em cùng cấp
+  // ==========================
+  const relatedCategories =
+    children.length > 0
+      ? children
+      : await prisma.category.findMany({
+          where: {
+            parentId: c.parentId,
+          },
+          orderBy: [
+            { order: "asc" },
+            { name: "asc" },
+          ],
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        });
+
+  // ==========================
+  // Lấy product
+  // ==========================
+  const categoryIds =
+    children.length > 0
+      ? children.map((x) => x.id)
+      : [c.id];
+
+  const products = await prisma.product.findMany({
+    where: {
+      published: true,
+      noindex: false,
+      categoryId: {
+        in: categoryIds,
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      price: true,
+      coverImage: true,
+      short: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 
   return (
     <main className="bg-[var(--color-bg)] text-slate-800">
 
-      {/* ===== HERO CATEGORY ===== */}
       <section className="relative">
         <div className="absolute inset-0 bg-black/60" />
+
         <img
           src={c.banner || "/images/banner2.jpg"}
           className="absolute inset-0 w-full h-full object-cover"
         />
 
         <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 py-20 text-white text-center">
+
           <h1 className="text-[28px] md:text-[32px] font-semibold">
             {c.name}
           </h1>
@@ -126,20 +168,18 @@ export default async function CategoryPage(
             {c.metaDescription ||
               `MCBROTHER cung cấp ${c.name.toLowerCase()} cho ngành thực phẩm, giúp tối ưu sản xuất và nâng cao hiệu suất.`}
           </p>
+
         </div>
       </section>
 
-      {/* ===== PRODUCTS ===== */}
       <section className="py-12">
         <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">
 
-          {/* 🔥 CATEGORY NAV (CHIPS) */}
           <CategoryChips categories={relatedCategories} />
 
-          {/* 🔥 PRODUCT GRID */}
-          {c.products.length > 0 ? (
+          {products.length > 0 ? (
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {c.products.map((p) => (
+              {products.map((p) => (
                 <ProductCard key={p.id} p={p} />
               ))}
             </div>

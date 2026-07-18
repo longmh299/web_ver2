@@ -106,7 +106,7 @@ export default function AboutPage() {
         {/* overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent" />
 
-        <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 min-h-[720px] flex items-center">
+        <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 min-h-[460px] md:min-h-[560px] flex items-center">
 
           {/* LEFT */}
           <div className="w-full lg:w-1/2 z-10">

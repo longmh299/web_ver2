@@ -11,21 +11,60 @@ import { PhoneCall, Settings, TrendingUp, Truck, Zap } from "lucide-react";
 export const revalidate = 60;
 export const runtime = "nodejs";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mcbrother.net";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mcbrother.com.vn";
 
 export const metadata: Metadata = {
-  title: "MCBROTHER JSC – Máy chế biến & đóng gói thực phẩm",
+  title:
+    "MCBROTHER JSC | Máy chế biến thực phẩm & máy đóng gói công nghiệp",
+
   description:
-    "Giải pháp máy móc tối ưu hiệu suất cho nhà máy/xưởng: hút chân không, co màng, in date, cân đóng gói… Lắp đặt & bảo hành tận nơi.",
-  alternates: { canonical: SITE_URL },
+    "MCBROTHER cung cấp máy chế biến thực phẩm, máy đóng gói, máy chiết rót, máy hút chân không, máy dán nhãn, máy co màng, máy in date, dây chuyền sản xuất và giải pháp tự động hóa cho doanh nghiệp trên toàn quốc.",
+
+  keywords: [
+    "máy chế biến thực phẩm",
+    "máy đóng gói",
+    "máy đóng gói công nghiệp",
+    "máy chiết rót",
+    "máy hút chân không",
+    "máy dán nhãn",
+    "máy co màng",
+    "máy in date",
+    "dây chuyền chế biến thực phẩm",
+    "dây chuyền đóng gói",
+    "thiết bị chế biến thực phẩm",
+    "máy thực phẩm",
+    "MCBROTHER",
+  ],
+
+  alternates: {
+    canonical: SITE_URL,
+  },
+
   openGraph: {
     type: "website",
     url: SITE_URL,
     siteName: "MCBROTHER JSC",
-    title: "MCBROTHER JSC – Máy chế biến & đóng gói thực phẩm",
-    description: "Giải pháp theo nhu cầu – lắp đặt nhanh – bảo hành tận nơi.",
+
+    title:
+      "MCBROTHER JSC | Máy chế biến thực phẩm & máy đóng gói công nghiệp",
+
+    description:
+      "Chuyên cung cấp máy chế biến thực phẩm, máy đóng gói, dây chuyền sản xuất và giải pháp tự động hóa cho doanh nghiệp trên toàn quốc.",
+
+    locale: "vi_VN",
   },
-  robots: { index: true, follow: true },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 function fmtVND(n?: number | null) {
@@ -162,19 +201,51 @@ export default async function HomePage() {
 
         {/* CONTENT */}
         <div className="relative max-w-7xl mx-auto w-full px-4">
-          <div className="max-w-xl">
+          <div className="max-w-2xl">
 
-            <h1 className="text-4xl font-bold text-gray-800 leading-snug">
-              Máy đóng gói & thiết bị chế biến thực phẩm công nghiệp tại TP.HCM
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-800 leading-tight">
+              Máy chế biến thực phẩm &
+              <br />
+              máy đóng gói công nghiệp
             </h1>
 
-            <p className="mt-4 text-gray-600">
-              MCBROTHER chuyên cung cấp máy đóng gói, máy chiết rót và dây chuyền sản xuất thực phẩm chất lượng cao.
+            {/* Mobile */}
+            <p className="mt-5 text-base leading-7 text-gray-700 md:hidden">
+              MCBROTHER cung cấp máy chế biến thực phẩm, máy đóng gói và dây
+              chuyền sản xuất. Tư vấn, lắp đặt và bảo hành trên toàn quốc.
             </p>
 
-            <button className="mt-6 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-6 py-3 rounded-lg transition">
+            {/* Desktop */}
+            <p className="mt-5 hidden md:block text-lg leading-8 text-gray-700">
+              MCBROTHER chuyên cung cấp máy chế biến thực phẩm, máy đóng gói,
+              máy chiết rót, máy hút chân không, máy dán nhãn, máy co màng,
+              dây chuyền sản xuất và giải pháp tự động hóa cho doanh nghiệp
+              trên toàn quốc.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 md:flex-row md:flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary)]" />
+                <span>10+ năm kinh nghiệm</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary)]" />
+                <span>1.200+ khách hàng</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary)]" />
+                <span>Giao hàng & lắp đặt toàn quốc</span>
+              </div>
+            </div>
+
+            <a
+              href="/lien-he"
+              className="inline-flex mt-8 bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-7 py-3 rounded-lg font-medium transition"
+            >
               Nhận báo giá ngay
-            </button>
+            </a>
 
           </div>
         </div>
@@ -321,57 +392,86 @@ export default async function HomePage() {
       </div>
 
       {/* ===== BLOG ===== */}
-      <section className="py-14">
-        <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">
-          <h2 className="text-[20px] font-semibold text-center mb-8">
-            Tin tức & kiến thức
-          </h2>
+<section className="py-16 bg-white">
+  <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {posts.map((post) => (
-              <div
-                key={post.id}
-                className="bg-white border border-gray-200 hover:border-gray-300 transition"
-              >
-                {/* IMAGE */}
-                <div className="h-40 bg-gray-200">
-                  <img
-                    src={post.coverImage || "/no-image.png"}
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+    {/* Heading */}
+    <div className="text-center max-w-2xl mx-auto mb-10">
 
-                {/* CONTENT */}
-                <div className="p-6">
-                  {/* CATEGORY + DATE */}
-                  <div className="text-xs text-gray-400 mb-1">
-                    {post.category?.name || "Tin tức"} •{" "}
-                    {new Date(post.createdAt).toLocaleDateString("vi-VN")}
-                  </div>
+      <span className="inline-flex items-center rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--color-primary)]">
+        Blog
+      </span>
 
-                  {/* TITLE */}
-                  <h3 className="text-[var(--color-primary)] text-base font-semibold line-clamp-2">
-                    {post.title}
-                  </h3>
+      <h2 className="mt-3 text-3xl font-bold text-gray-900">
+        Tin tức & Kiến thức ngành thực phẩm
+      </h2>
 
-                  {/* EXCERPT */}
-                  <p className="text-sm leading-relaxed text-gray-600 mt-1 line-clamp-2">
-                    {post.excerpt || "Đang cập nhật nội dung..."}
-                  </p>
+      <p className="mt-3 text-gray-600 leading-7">
+        Cập nhật kiến thức, kinh nghiệm lựa chọn máy móc và giải pháp tối ưu
+        dây chuyền chế biến, đóng gói thực phẩm cho doanh nghiệp.
+      </p>
 
-                  {/* LINK */}
-                  <Link href={`/tin-tuc/${post.slug}`}>
-                    <div className="mt-3 text-base font-semibold text-[var(--color-primary)]">
-                      Xem chi tiết →
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            ))}
+    </div>
+
+    {/* Blog Grid */}
+    <div className="grid gap-6 md:grid-cols-3">
+      {posts.map((post) => (
+        <article
+          key={post.id}
+          className="overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-[var(--color-primary)] hover:shadow-lg"
+        >
+          {/* Image */}
+          <Link href={`/tin-tuc/${post.slug}`}>
+            <div className="relative aspect-[16/10] overflow-hidden">
+              <img
+                src={post.coverImage || "/no-image.png"}
+                alt={post.title}
+                className="h-full w-full object-cover transition duration-500 hover:scale-105"
+              />
+            </div>
+          </Link>
+
+          {/* Content */}
+          <div className="p-5">
+
+            <div className="text-xs text-gray-400">
+              {post.category?.name || "Tin tức"} •{" "}
+              {new Date(post.createdAt).toLocaleDateString("vi-VN")}
+            </div>
+
+            <h3 className="mt-3 text-lg font-semibold text-gray-900 line-clamp-2">
+              {post.title}
+            </h3>
+
+            <p className="mt-3 text-sm leading-7 text-gray-600 line-clamp-3">
+              {post.excerpt || "Đang cập nhật nội dung..."}
+            </p>
+
+            <Link
+              href={`/tin-tuc/${post.slug}`}
+              className="mt-5 inline-flex items-center gap-2 font-semibold text-[var(--color-primary)] hover:gap-3 transition-all"
+            >
+              Xem chi tiết
+              <span>→</span>
+            </Link>
+
           </div>
-        </div>
-      </section>
+        </article>
+      ))}
+    </div>
+
+    {/* Button */}
+    <div className="mt-10 text-center">
+      <Link
+        href="/tin-tuc"
+        className="inline-flex items-center rounded-lg border border-[var(--color-primary)] px-6 py-3 text-sm font-semibold text-[var(--color-primary)] transition hover:bg-[var(--color-primary)] hover:text-white"
+      >
+        Xem tất cả bài viết
+      </Link>
+    </div>
+
+  </div>
+</section>
 
       {/* ===== CTA ===== */}
       <section className="bg-[var(--color-primary)] text-white text-center py-14">
@@ -379,9 +479,12 @@ export default async function HomePage() {
           Cần tư vấn giải pháp phù hợp?
         </h3>
 
-        <button className="mt-4 bg-white text-black px-6 py-2 rounded text-base font-semibold font-medium">
+        <Link
+          href="/lien-he"
+          className="inline-block mt-4 bg-white text-black px-6 py-2 rounded text-base font-semibold hover:bg-gray-100 transition"
+        >
           Liên hệ ngay
-        </button>
+        </Link>
       </section>
 
     </main>

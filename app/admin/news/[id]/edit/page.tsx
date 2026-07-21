@@ -1,211 +1,363 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { updatePost } from "@/app/admin/news/actions";
 import ImageField from "@/components/ImageField";
 import NewsEditor from "@/components/NewsEditor";
-import React from "react";
+import PostEditInline from "@/components/PostEditInline";
 
-export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* ================= CLIENT INLINE ================= */
-function PostEditInline() {
-  "use client";
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
 
-  React.useEffect(() => {
-    const $ = (s: string) => document.querySelector(s);
+export default async function EditPostPage({ params }: Props) {
+  const { id } = await params;
 
-    const title = $('#title') as HTMLInputElement | null;
-    const slug = $('#slug') as HTMLInputElement | null;
-    const slugHint = $('#slugHint') as HTMLElement | null;
+  const postId = Number(id);
 
-    const mt = $('#metaTitle') as HTMLInputElement | null;
-    const md = $('#metaDescription') as HTMLTextAreaElement | null;
-    const mtc = $('#metaTitleCount') as HTMLElement | null;
-    const mdc = $('#metaDescCount') as HTMLElement | null;
-
-    const tagsInp = $('#tagsInput') as HTMLInputElement | null;
-    const tagsWrap = $('#tagsPreview') as HTMLElement | null;
-
-    if (!title || !slug) return;
-
-    const toSlug = (s: string) =>
-      s
-        .toLowerCase()
-        .normalize('NFKD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9\s-]/g, '')
-        .trim()
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-
-    let last = slug.value || '';
-
-    /* ===== SLUG ===== */
-    const sync = () => {
-      const base = toSlug(title.value || '');
-
-      if (slug.value === '' || slug.value === last) {
-        slug.value = base;
-        last = base;
-
-        if (slugHint) {
-          slugHint.textContent = base ? 'Slug gợi ý: ' + base : '';
-        }
-      }
-    };
-
-    title.addEventListener('input', sync);
-
-    /* ===== SEO COUNT ===== */
-    const paint = (
-      el: HTMLElement,
-      val: string,
-      min: number,
-      max: number
-    ) => {
-      const len = val.length;
-      const ok = len >= min && len <= max;
-
-      el.textContent = `${len} ký tự ${ok ? "(tốt)" : ""}`;
-      el.style.color = ok ? "#16a34a" : "#6b7280";
-    };
-
-    const tick = () => {
-      if (mt && mtc) paint(mtc, mt.value, 50, 60);
-      if (md && mdc) paint(mdc, md.value, 140, 160);
-    };
-
-    mt?.addEventListener('input', tick);
-    md?.addEventListener('input', tick);
-    tick();
-
-    /* ===== TAGS ===== */
-    const renderTags = () => {
-      if (!tagsInp || !tagsWrap) return;
-
-      const tags = (tagsInp.value || "")
-        .split(",")
-        .map((t) => t.trim().toLowerCase())
-        .filter(Boolean);
-
-      const unique = [...new Set(tags)];
-
-      tagsWrap.innerHTML = "";
-
-      unique.forEach((t) => {
-        const el = document.createElement("span");
-        el.className =
-          "inline-flex items-center rounded-full border px-2 py-0.5 text-xs";
-        el.textContent = t;
-        tagsWrap.appendChild(el);
-      });
-    };
-
-    tagsInp?.addEventListener("input", renderTags);
-    renderTags();
-
-    return () => {
-      title.removeEventListener("input", sync);
-      mt?.removeEventListener("input", tick);
-      md?.removeEventListener("input", tick);
-      tagsInp?.removeEventListener("input", renderTags);
-    };
-  }, []);
-
-  return null;
-}
-
-/* ================= PAGE ================= */
-export default async function EditPostPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const pid = Number(params.id);
-  
-  if (!Number.isFinite(pid)) {
-    return <div>ID không hợp lệ</div>;
+  if (!Number.isFinite(postId)) {
+    notFound();
   }
 
   const [post, cats] = await Promise.all([
     prisma.post.findUnique({
-      where: { id: pid },
+      where: { id: postId },
     }),
-    prisma.postCategory.findMany(),
+
+    prisma.postCategory.findMany({
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
   ]);
 
-  if (!post) return <div>Không tìm thấy bài viết</div>;
+  if (!post) {
+    notFound();
+  }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 space-y-6">
-      <h1 className="text-2xl font-semibold">Sửa bài viết</h1>
-
-      <form action={updatePost} className="grid md:grid-cols-3 gap-6">
-        <input type="hidden" name="id" value={post.id} />
-
-        {/* LEFT */}
-        <section className="md:col-span-2 space-y-6">
-          <div className="p-5 border rounded-xl space-y-4">
-            <input
-              id="title"
-              name="title"
-              defaultValue={post.title}
-              placeholder="Tiêu đề"
-              className="w-full border p-2"
-            />
-
-            <input
-              id="slug"
-              name="slug"
-              defaultValue={post.slug ?? ""}
-              placeholder="slug"
-              className="w-full border p-2"
-            />
-            <p id="slugHint" className="text-xs text-gray-500" />
-
-            <NewsEditor name="content" value={post.content ?? ""} />
-
-            <input
-              id="tagsInput"
-              name="tags"
-              defaultValue={(post.tags || []).join(", ")}
-              className="w-full border p-2"
-            />
-            <div id="tagsPreview" className="flex gap-2 flex-wrap" />
-          </div>
-        </section>
-
-        {/* RIGHT */}
-        <aside className="space-y-4">
-          <input
-            id="metaTitle"
-            name="metaTitle"
-            defaultValue={post.metaTitle ?? ""}
-            placeholder="Meta title"
-            className="w-full border p-2"
-          />
-          <p id="metaTitleCount" className="text-xs" />
-
-          <textarea
-            id="metaDescription"
-            name="metaDescription"
-            defaultValue={post.metaDescription ?? ""}
-            className="w-full border p-2"
-          />
-          <p id="metaDescCount" className="text-xs" />
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded"
-          >
-            Lưu
-          </button>
-        </aside>
-      </form>
-
-      {/* 🔥 INLINE CLIENT */}
+    <>
       <PostEditInline />
-    </div>
+
+      <div className="space-y-5">
+
+        <div className="flex items-center justify-between">
+
+          <h1 className="text-2xl font-semibold">
+            Chỉnh sửa bài viết
+          </h1>
+
+          <Link
+            href="/admin/news"
+            className="rounded bg-gray-100 px-3 py-2 hover:bg-gray-200"
+          >
+            ← Quay lại
+          </Link>
+
+        </div>
+
+        <form
+          action={updatePost}
+          className="grid gap-6 md:grid-cols-3"
+        >
+
+          <input
+            type="hidden"
+            name="id"
+            value={post.id}
+          />
+
+          <section className="space-y-6 md:col-span-2">
+
+            <div className="rounded-2xl border bg-white shadow-sm">
+
+              <div className="border-b px-5 py-3 font-medium">
+                Thông tin cơ bản
+              </div>
+
+              <div className="grid gap-4 p-5 md:grid-cols-2">
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium">
+                    Tiêu đề *
+                  </label>
+
+                  <input
+                    name="title"
+                    required
+                    defaultValue={post.title}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">
+                    Slug
+                  </label>
+
+                  <input
+                    name="slug"
+                    defaultValue={post.slug}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium">
+                    Chuyên mục
+                  </label>
+
+                  <select
+                    name="categoryId"
+                    defaultValue={post.categoryId ?? ""}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  >
+                    <option value="">
+                      — Chưa chọn —
+                    </option>
+
+                    {cats.map((c) => (
+                      <option
+                        key={c.id}
+                        value={c.id}
+                      >
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+
+                </div>
+                                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium">
+                    Mô tả ngắn (excerpt)
+                  </label>
+
+                  <textarea
+                    name="excerpt"
+                    rows={3}
+                    defaultValue={post.excerpt ?? ""}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <ImageField
+                    name="coverImage"
+                    label="Ảnh đại diện"
+                    folder="mcbrother/posts"
+                    placeholder="Dán URL ảnh hoặc Upload"
+                    defaultValue={post.coverImage ?? ""}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium">
+                    Tags
+                  </label>
+
+                  <input
+                    name="tags"
+                    defaultValue={post.tags.join(", ")}
+                    placeholder="máy đóng gói, máy hút chân không..."
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+                </div>
+
+                <div className="flex items-center gap-6 md:col-span-2">
+
+                  <label className="inline-flex items-center gap-2">
+
+                    <input
+                      type="checkbox"
+                      name="published"
+                      value="1"
+                      defaultChecked={post.published}
+                      className="h-4 w-4"
+                    />
+
+                    <span>Hiển thị bài viết</span>
+
+                  </label>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="rounded-2xl border bg-white shadow-sm">
+
+              <div className="border-b px-5 py-3 font-medium">
+                Nội dung bài viết
+              </div>
+
+              <div className="p-5">
+
+                <NewsEditor
+                  name="content"
+                  value={post.content ?? ""}
+                  height={520}
+                />
+
+              </div>
+
+            </div>
+
+          </section>
+
+          <aside className="space-y-6">
+
+            <div className="rounded-2xl border bg-white shadow-sm">
+
+              <div className="border-b px-5 py-3 font-medium">
+                SEO
+              </div>
+
+              <div className="space-y-4 p-5">
+
+                <div>
+
+                  <label className="block text-sm font-medium">
+                    Meta title
+                  </label>
+
+                  <input
+                    name="metaTitle"
+                    defaultValue={post.metaTitle ?? ""}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+
+                </div>
+
+                <div>
+
+                  <label className="block text-sm font-medium">
+                    Meta description
+                  </label>
+
+                  <textarea
+                    rows={4}
+                    name="metaDescription"
+                    defaultValue={post.metaDescription ?? ""}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+
+                </div>
+                                <div>
+
+                  <label className="block text-sm font-medium">
+                    Canonical URL
+                  </label>
+
+                  <input
+                    name="canonicalUrl"
+                    defaultValue={post.canonicalUrl ?? ""}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+
+                </div>
+
+                <div>
+
+                  <label className="block text-sm font-medium">
+                    OG Image
+                  </label>
+
+                  <input
+                    name="ogImage"
+                    defaultValue={post.ogImage ?? ""}
+                    className="mt-1 w-full rounded-lg border px-3 py-2"
+                  />
+
+                </div>
+
+                <div className="flex flex-col gap-3">
+
+                  <label className="inline-flex items-center gap-2">
+
+                    <input
+                      type="checkbox"
+                      name="noindex"
+                      value="1"
+                      defaultChecked={post.noindex}
+                      className="h-4 w-4"
+                    />
+
+                    <span>Noindex</span>
+
+                  </label>
+
+                  <label className="inline-flex items-center gap-2">
+
+                    <input
+                      type="checkbox"
+                      name="nofollow"
+                      value="1"
+                      defaultChecked={post.nofollow}
+                      className="h-4 w-4"
+                    />
+
+                    <span>Nofollow</span>
+
+                  </label>
+
+                </div>
+
+                <div className="border-t pt-5">
+
+                  <button
+                    type="submit"
+                    className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700"
+                  >
+                    💾 Lưu thay đổi
+                  </button>
+
+                </div>
+
+                <div className="rounded-xl border bg-gray-50 p-4 text-sm space-y-2">
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">ID</span>
+                    <span>{post.id}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Ngày tạo</span>
+
+                    <span>
+                      {post.createdAt.toLocaleDateString("vi-VN")}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">
+                      Cập nhật
+                    </span>
+
+                    <span>
+                      {post.updatedAt.toLocaleDateString("vi-VN")}
+                    </span>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </aside>
+
+        </form>
+
+      </div>
+          </>
   );
 }

@@ -6,7 +6,7 @@ import CategoryChips from "@/components/CategoryChips";
 import { prisma } from "@/lib/prisma";
 import { abs } from "@/lib/site";
 import { redirect, notFound } from "next/navigation";
-
+import Image from "next/image";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -150,27 +150,52 @@ export default async function CategoryPage(
   return (
     <main className="bg-[var(--color-bg)] text-slate-800">
 
-      <section className="relative">
-        <div className="absolute inset-0 bg-black/60" />
+      <section className="relative h-[320px] md:h-[420px] overflow-hidden bg-[#25282c]">
+  <Image
+    src={c.banner || "/images/banner2.jpg"}
+    alt={c.name}
+    fill
+    priority
+    sizes="100vw"
+    className="
+      object-cover
+      object-center
+      md:object-right
+    "
+  />
 
-        <img
-          src={c.banner || "/images/banner2.jpg"}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+  <div className="absolute inset-0 bg-black/5" />
 
-        <div className="relative max-w-7xl xl:max-w-[1280px] mx-auto px-4 py-20 text-white text-center">
+  <div
+    className="
+      relative
+      h-full
+      max-w-7xl
+      xl:max-w-[1280px]
+      mx-auto
+      px-4
+      flex
+      items-center
+      justify-center
+      text-center
+      text-white
+    "
+  >
+    <div className="max-w-2xl">
 
-          <h1 className="text-[28px] md:text-[32px] font-semibold">
-            {c.name}
-          </h1>
+      <h1 className="text-[28px] md:text-[36px] font-semibold">
+        {c.name}
+      </h1>
 
-          <p className="mt-3 text-sm text-white/80 max-w-2xl mx-auto">
-            {c.metaDescription ||
-              `MCBROTHER cung cấp ${c.name.toLowerCase()} cho ngành thực phẩm, giúp tối ưu sản xuất và nâng cao hiệu suất.`}
-          </p>
+      <p className="mt-3 text-sm md:text-base text-white/85">
+        {c.metaDescription ||
+          `MCBROTHER cung cấp ${c.name.toLowerCase()} cho ngành thực phẩm, giúp tối ưu sản xuất và nâng cao hiệu suất.`}
+      </p>
 
-        </div>
-      </section>
+    </div>
+  </div>
+
+</section>
 
       <section className="py-12">
         <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">

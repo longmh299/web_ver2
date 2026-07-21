@@ -95,6 +95,11 @@ export default function NewsEditor(props: Props) {
   return (
     <div className={props.className}>
 
+      {/* ===== HIDDEN INPUT: bắt buộc để form submit được content ===== */}
+      {props.name && (
+        <input type="hidden" name={props.name} value={content} />
+      )}
+
       {/* ===== TOOLBAR ===== */}
       <div className="mb-3 flex flex-wrap gap-2">
         <Btn onClick={insertTemplate}>📄 Template</Btn>

@@ -57,6 +57,8 @@ export async function createPost(fd: FormData) {
   const metaDescription =
     String(fd.get("metaDescription") ?? "").trim() || plainText;
 
+  let redirectTarget = "/admin/news?ok=1";
+
   try {
     let finalSlug = slug;
     let i = 1;
@@ -82,11 +84,11 @@ export async function createPost(fd: FormData) {
 
     revalidatePath("/admin/news");
     revalidatePath(`/tin-tuc/${post.slug}`);
-    redirect("/admin/news?ok=1");
-
   } catch (e: any) {
-    redirect(`/admin/news?err=${encodeURIComponent(e.message)}`);
+    redirectTarget = `/admin/news?err=${encodeURIComponent(e.message)}`;
   }
+
+  redirect(redirectTarget);
 }
 
 /* ================= UPDATE ================= */
@@ -104,6 +106,15 @@ export async function updatePost(fd: FormData) {
   slug = slug ? toSlug(slug) : toSlug(title);
 
   const content = cleanContent(String(fd.get("content") ?? ""));
+  const plainText = content.replace(/<[^>]+>/g, "").slice(0, 160);
+
+  const metaTitle =
+    String(fd.get("metaTitle") ?? "").trim() || title.slice(0, 60);
+
+  const metaDescription =
+    String(fd.get("metaDescription") ?? "").trim() || plainText;
+
+  let redirectTarget = "/admin/news?ok=1";
 
   try {
     let finalSlug = slug;
@@ -122,34 +133,46 @@ export async function updatePost(fd: FormData) {
       data: {
         title,
         slug: finalSlug,
+        excerpt: String(fd.get("excerpt") ?? "").trim() || null,
         content,
+        coverImage: String(fd.get("coverImage") ?? "").trim() || null,
         tags: parseTags(String(fd.get("tags"))),
+        published: getBool(fd, "published"),
+        categoryId: fd.get("categoryId") ? Number(fd.get("categoryId")) : null,
+        metaTitle,
+        metaDescription,
+        canonicalUrl: String(fd.get("canonicalUrl") ?? "").trim() || null,
+        ogImage: String(fd.get("ogImage") ?? "").trim() || null,
+        noindex: getBool(fd, "noindex"),
+        nofollow: getBool(fd, "nofollow"),
       },
     });
 
     revalidatePath("/admin/news");
-    redirect("/admin/news?ok=1");
-
+    revalidatePath(`/tin-tuc/${finalSlug}`);
   } catch (e: any) {
-    redirect(`/admin/news?err=${encodeURIComponent(e.message)}`);
+    redirectTarget = `/admin/news?err=${encodeURIComponent(e.message)}`;
   }
+
+  redirect(redirectTarget);
 }
 
 /* ================= DELETE ================= */
 
 export async function deletePost(fd: FormData) {
-  "use server"; // 🔥 CÁI QUAN TRỌNG NHẤT
+  "use server";
 
   const id = Number(fd.get("id"));
   if (!Number.isFinite(id)) throw new Error("ID không hợp lệ");
 
+  let redirectTarget = "/admin/news?ok=1";
+
   try {
     await prisma.post.delete({ where: { id } });
-
     revalidatePath("/admin/news");
-    redirect("/admin/news?ok=1");
-
   } catch (e: any) {
-    redirect(`/admin/news?err=${encodeURIComponent(e.message)}`);
+    redirectTarget = `/admin/news?err=${encodeURIComponent(e.message)}`;
   }
+
+  redirect(redirectTarget);
 }

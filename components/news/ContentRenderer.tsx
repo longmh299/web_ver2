@@ -27,15 +27,29 @@ function safeAttribs(attribs: Record<string, any> = {}) {
   );
 }
 
+// ảnh: loại thêm width/height gốc (thường do TinyMCE/paste chèn kèm)
+// để tránh ảnh bị "khóa" chiều cao theo pixel gốc, gây phình layout
+function safeImgAttribs(attribs: Record<string, any> = {}) {
+  return Object.fromEntries(
+    Object.entries(attribs).filter(
+      ([key]) => !['style', 'width', 'height'].includes(key)
+    )
+  );
+}
+
 export default function ContentRenderer({ html }: Props) {
 
   // ===== normalize =====
   const normalized = normalize(html || '');
 
   // ===== sanitize =====
+  // 🔥 FORBID_ATTR: ['style'] — chặn TOÀN BỘ inline style (kể cả trong
+  // div/span do bài viết dán vào, ví dụ label chú thích ảnh dùng
+  // position:absolute; left:...px không responsive), tránh tràn ngang trang.
   const clean = DOMPurify.sanitize(normalized, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: ['script'],
+    FORBID_ATTR: ['style'],
   });
 
   // ===== enhance HTML → React =====
@@ -47,13 +61,15 @@ export default function ContentRenderer({ html }: Props) {
       if (node.name === 'img') {
         return (
           <img
-            {...safeAttribs(node.attribs)}
+            {...safeImgAttribs(node.attribs)}
             loading="lazy"
             className="
               rounded-xl
               shadow-sm
               my-6
               w-full
+              h-auto
+              max-w-full
               object-cover
             "
           />
@@ -161,6 +177,7 @@ export default function ContentRenderer({ html }: Props) {
         prose
         prose-slate
         max-w-none
+        overflow-x-hidden
 
         prose-headings:font-semibold
         prose-p:leading-relaxed

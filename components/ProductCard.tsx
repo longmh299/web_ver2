@@ -113,7 +113,7 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
 
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
-          Bảo hành 12 tháng
+          Hàng nhập khẩu
         </div>
 
         <div className="flex items-center gap-2">

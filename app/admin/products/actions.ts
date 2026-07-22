@@ -88,6 +88,7 @@ export async function createProduct(formData: FormData) {
     dimensions: asString(formData.get('dimensions')) || null,
     functions: asString(formData.get('functions')) || null,
     material: asString(formData.get('material')) || null,
+    warranty: asString(formData.get('warranty')) || null,   // 👈 thêm dòng này
 
     metaTitle: asString(formData.get('metaTitle')) || null,
     metaDescription: asString(formData.get('metaDescription')) || null,
@@ -144,6 +145,7 @@ export async function updateProduct(formData: FormData) {
     dimensions: asString(formData.get('dimensions')) || null,
     functions: asString(formData.get('functions')) || null,
     material: asString(formData.get('material')) || null,
+    warranty: asString(formData.get('warranty')) || null,   // 👈 thêm dòng này
 
     metaTitle: asString(formData.get('metaTitle')) || null,
     metaDescription: asString(formData.get('metaDescription')) || null,

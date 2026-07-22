@@ -167,6 +167,15 @@ export default async function NewProductPage() {
               <div><label className="block text-sm font-medium">Chức năng (functions)</label><input name="functions" className="mt-1 w-full rounded-lg border px-3 py-2" /></div>
               <div><label className="block text-sm font-medium">Vật liệu (material)</label><input name="material" className="mt-1 w-full rounded-lg border px-3 py-2" /></div>
             </div>
+            <div>
+              <label className="block text-sm font-medium">Bảo hành (warranty)</label>
+              <select name="warranty" className="mt-1 w-full rounded-lg border px-3 py-2" defaultValue="12 tháng">
+                <option value="6 tháng">6 tháng</option>
+                <option value="12 tháng">12 tháng</option>
+                <option value="18 tháng">18 tháng</option>
+                <option value="24 tháng">24 tháng</option>
+              </select>
+            </div>
           </div>
           {/* Card 4: Bảng thông số nâng cao */}
           <div className="rounded-2xl border bg-white shadow-sm">
@@ -192,7 +201,7 @@ export default async function NewProductPage() {
 
                 <button
                   type="button"
-                 id="addRowBtn"
+                  id="addRowBtn"
                   className="text-sm text-blue-600"
                 >
                   + Thêm model
@@ -217,7 +226,7 @@ export default async function NewProductPage() {
                 + Thêm câu hỏi
               </button>
 
-              <input type="hidden" name="productFAQ" id="faqInput" />
+              <input type="hidden" name="faqs" id="faqInput" />
             </div>
           </div>
         </section>

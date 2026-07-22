@@ -6,7 +6,7 @@ import { Check, Settings, Zap } from "lucide-react";
 export const dynamic = 'force-dynamic';
 import { ShieldCheck, Truck, BadgeCheck } from "lucide-react";
 import { cache } from "react";
-
+import ProductMedia from "@/components/ProductMedia";
 /* ===================== CONFIG ===================== */
 // ĐỔI SANG ZALO CỦA BẠN
 const ZALO_URL = 'https://zalo.me/0834551888';
@@ -103,6 +103,7 @@ const getProduct = cache(async (slug: string) => {
       categoryId: true,
       sku: true,
       metaTitle: true,
+      warranty: true,
       metaDescription: true,
       canonicalUrl: true,
       ogImage: true,
@@ -297,71 +298,13 @@ export default async function ProductDetailPage(
             {/* ===== LEFT ===== */}
             <div className="space-y-6">
 
-              {/* IMAGE */}
-              <div className="bg-white rounded-2xl border overflow-hidden shadow-sm">
-                <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden group">
-                  {mainImg ? (
-                    <img
-                      src={mainImg}
-                      srcSet={mainSrcSet}
-                      alt={p.name}
-                      className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      No image
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* VIDEO (đẩy lên ngay dưới ảnh) */}
-              {p.videoUrl && (
-                <div className="mt-10">
-                  <h2 className="text-lg font-semibold mb-3">Video vận hành</h2>
-
-                  <div className="bg-white border rounded-xl p-3">
-                    {(() => {
-                      const url = p.videoUrl || '';
-
-                      const isShort =
-                        url.includes('shorts') ||
-                        url.includes('tiktok') ||
-                        url.includes('reel');
-
-                      const isVideoFile = /\.(mp4|webm|ogg)$/i.test(url);
-
-                      const embedUrl = url
-                        .replace('youtu.be/', 'youtube.com/embed/')
-                        .replace('shorts/', 'embed/');
-
-                      return (
-                        <div
-                          className="relative mx-auto rounded-lg overflow-hidden bg-black"
-                          style={{
-                            paddingTop: isShort ? '177.78%' : '56.25%', // 9:16 vs 16:9
-                            maxWidth: isShort ? 420 : '100%',
-                          }}
-                        >
-                          {isVideoFile ? (
-                            <video
-                              src={url}
-                              controls
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
-                          ) : (
-                            <iframe
-                              src={embedUrl}
-                              className="absolute inset-0 w-full h-full"
-                              allowFullScreen
-                            />
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-              )}
+              {/* IMAGE + VIDEO */}
+              <ProductMedia
+                mainImg={mainImg}
+                mainSrcSet={mainSrcSet}
+                productName={p.name}
+                videoUrl={p.videoUrl}
+              />
 
             </div>
 
@@ -403,7 +346,7 @@ export default async function ProductDetailPage(
 
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-[var(--color-accent)]" />
-                    Bảo hành 12 tháng
+                    Bảo hành {p.warranty || "12 tháng"}
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -432,28 +375,22 @@ export default async function ProductDetailPage(
                 </div>
               )}
 
-              {/* HIGHLIGHT */}
 
-              {/* HIGHLIGHT */}
+
               <div className="bg-gray-50 border rounded-xl p-4 shadow-sm">
                 <ul className="space-y-2 text-sm text-gray-700">
-
                   <li className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-yellow-500" />
-                    Công suất ổn định
+                    Lắp đặt &amp; hướng dẫn vận hành tận nơi
                   </li>
-
                   <li className="flex items-center gap-2">
                     <ShieldCheck className="w-4 h-4 text-green-600" />
-
-                    Độ bền cao
+                    Hỗ trợ kỹ thuật trọn đời máy
                   </li>
-
                   <li className="flex items-center gap-2">
                     <Settings className="w-4 h-4 text-blue-600" />
-                    Phù hợp sản xuất
+                    Có sẵn linh kiện thay thế chính hãng
                   </li>
-
                 </ul>
               </div>
 
@@ -485,7 +422,7 @@ export default async function ProductDetailPage(
                     <div className="bg-white border border-[var(--color-border)] rounded-2xl overflow-hidden shadow-sm">
 
                       {/* HEADER */}
-                      <div
+                      {/* <div
                         className="grid text-sm font-semibold bg-gray-50"
                         style={{ gridTemplateColumns: `200px repeat(${columns.length}, 1fr)` }}
                       >
@@ -496,7 +433,7 @@ export default async function ProductDetailPage(
                             {col}
                           </div>
                         ))}
-                      </div>
+                      </div> */}
 
                       {/* ROWS */}
                       {rows.map((row, i) => (
@@ -528,7 +465,7 @@ export default async function ProductDetailPage(
                 <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
 
                   <div
-  className="
+                    className="
     blog-content
     prose
     max-w-none
@@ -560,8 +497,8 @@ export default async function ProductDetailPage(
     prose-th:font-semibold
     prose-td:align-middle
   "
-  dangerouslySetInnerHTML={{ __html: descHtml }}
-/>
+                    dangerouslySetInnerHTML={{ __html: descHtml }}
+                  />
 
                 </div>
               )}
@@ -707,21 +644,6 @@ export default async function ProductDetailPage(
         </div>
       </section>
 
-      {/* ===== MOBILE CTA ===== */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t p-3 flex gap-2 md:hidden">
-        <a
-          href={ZALO_URL}
-          className="flex-1 text-center py-3 rounded bg-[var(--color-accent)] text-white font-semibold text-base"
-        >
-          Báo giá
-        </a>
-        <a
-          href="tel:0834551888"
-          className="flex-1 text-center py-3 rounded border"
-        >
-          Gọi
-        </a>
-      </div>
 
     </main>
   );

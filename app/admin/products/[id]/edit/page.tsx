@@ -48,6 +48,8 @@ export default async function EditProductPage({ params }: Props) {
         categoryId: true,
         specTable: true,
         faqs: true,
+        warranty: true,      // 👈 thêm dòng này
+
       },
     }),
     prisma.category.findMany({
@@ -299,6 +301,19 @@ export default async function EditProductPage({ params }: Props) {
                 />
               </div>
             </div>
+            <div>
+              <label className="block text-sm font-medium">Bảo hành (warranty)</label>
+              <select
+                name="warranty"
+                defaultValue={product.warranty ?? "12 tháng"}
+                className="mt-1 w-full rounded-lg border px-3 py-2"
+              >
+                <option value="6 tháng">6 tháng</option>
+                <option value="12 tháng">12 tháng</option>
+                <option value="18 tháng">18 tháng</option>
+                <option value="24 tháng">24 tháng</option>
+              </select>
+            </div>
           </div>
           {/* Card 4: Bảng thông số nâng cao */}
           <div className="rounded-2xl border bg-white shadow-sm">
@@ -333,12 +348,12 @@ export default async function EditProductPage({ params }: Props) {
 
               {/* 🔥 FIX KEY */}
               <input
-  key={`spec-${product.id}`}
-  type="hidden"
-  id="specTableInput"
-  name="specTable"
-  value={JSON.stringify(product.specTable ?? null)}
-/>
+                key={`spec-${product.id}`}
+                type="hidden"
+                id="specTableInput"
+                name="specTable"
+                value={JSON.stringify(product.specTable ?? null)}
+              />
             </div>
           </div>
 
@@ -360,13 +375,13 @@ export default async function EditProductPage({ params }: Props) {
               </button>
 
               {/* 🔥 FIX KEY */}
-             <input
-  key={`faq-${product.id}`}
-  type="hidden"
-  id="faqInput"
-  name="faqs"
-  value={JSON.stringify(product.faqs ?? [])}
-/>
+              <input
+                key={`faq-${product.id}`}
+                type="hidden"
+                id="faqInput"
+                name="faqs"
+                value={JSON.stringify(product.faqs ?? [])}
+              />
             </div>
           </div>
         </section>
@@ -447,7 +462,7 @@ export default async function EditProductPage({ params }: Props) {
       </form>
 
       {/* ---------- Client-side helpers ---------- */}
-      <Script id="product-edit-enhance" strategy="afterInteractive">{`
+      <Script id={`product-edit-enhance-${product.id}-${Date.now()}`} strategy="afterInteractive">{`
 (function(){
   const $ = (sel)=>document.querySelector(sel);
   const nameEl = $('#name');
@@ -565,27 +580,70 @@ export default async function EditProductPage({ params }: Props) {
   if (metaDescription) metaDescription.addEventListener('input', function(){ tickSEO(); markDirty(); });
   tickSEO();
 
-  // ===== 🔥 FIX PREFILL =====
+  // ===== SPEC TABLE + FAQ: thêm dòng mới =====
+  const addColumn = function(){
+    if (!specColumnsWrap) return;
+    const input = document.createElement('input');
+    input.placeholder = 'Tên model';
+    input.className = 'w-full border rounded px-3 py-2';
+    specColumnsWrap.appendChild(input);
+    markDirty();
+  };
+
+  const addRow = function(){
+    if (!specRowsWrap) return;
+    const row = document.createElement('div');
+    row.className = 'space-y-2';
+    row.innerHTML =
+      '<input placeholder="Tên thông số" class="border px-2 py-1 rounded w-full"/>' +
+      '<div class="values flex gap-2 flex-wrap"></div>' +
+      '<button type="button" class="addVal text-xs text-blue-500">+ thêm giá trị</button>';
+    const valuesWrap = row.querySelector('.values');
+    const addValBtn = row.querySelector('.addVal');
+    addValBtn.onclick = function(){
+      const valInput = document.createElement('input');
+      valInput.className = 'border px-2 py-1 rounded';
+      valuesWrap.appendChild(valInput);
+      markDirty();
+    };
+    specRowsWrap.appendChild(row);
+    markDirty();
+  };
+
+  const addFaq = function(){
+    if (!faqWrap) return;
+    const item = document.createElement('div');
+    item.className = 'space-y-1';
+    item.innerHTML =
+      '<input placeholder="Câu hỏi" class="w-full border px-3 py-2 rounded"/>' +
+      '<input placeholder="Trả lời" class="w-full border px-3 py-2 rounded"/>';
+    faqWrap.appendChild(item);
+    markDirty();
+  };
+
+  document.getElementById('addColumnBtn')?.addEventListener('click', addColumn);
+  document.getElementById('addRowBtn')?.addEventListener('click', addRow);
+  document.getElementById('addFaqBtn')?.addEventListener('click', addFaq);
+
+  // ===== PREFILL dữ liệu cũ (spec + faq) =====
   function renderSpecAndFaq() {
     try {
       const specData = JSON.parse(specTableInput?.value || 'null');
       const faqData = JSON.parse(faqInput?.value || '[]');
 
-      // clear
       if (specColumnsWrap) specColumnsWrap.innerHTML = '';
       if (specRowsWrap) specRowsWrap.innerHTML = '';
       if (faqWrap) faqWrap.innerHTML = '';
 
-      // spec
       if (specData) {
-        specData.columns?.forEach(function(col){
+        (specData.columns || []).forEach(function(col){
           const input = document.createElement('input');
           input.value = col;
           input.className = 'w-full border px-3 py-2 rounded';
           specColumnsWrap?.appendChild(input);
         });
 
-        specData.rows?.forEach(function(row){
+        (specData.rows || []).forEach(function(row){
           const rowDiv = document.createElement('div');
           rowDiv.className = 'space-y-2';
 
@@ -594,30 +652,50 @@ export default async function EditProductPage({ params }: Props) {
           label.className = 'border px-2 py-1 rounded w-full';
 
           const valuesWrap = document.createElement('div');
-          valuesWrap.className = 'flex gap-2 flex-wrap';
+          valuesWrap.className = 'flex gap-2 flex-wrap values';
 
-          row.values?.forEach(function(v){
+          (row.values || []).forEach(function(v){
             const val = document.createElement('input');
             val.value = v;
             val.className = 'border px-2 py-1 rounded';
             valuesWrap.appendChild(val);
           });
 
+          const addValBtn = document.createElement('button');
+          addValBtn.type = 'button';
+          addValBtn.className = 'addVal text-xs text-blue-500';
+          addValBtn.textContent = '+ thêm giá trị';
+          addValBtn.onclick = function(){
+            const valInput = document.createElement('input');
+            valInput.className = 'border px-2 py-1 rounded';
+            valuesWrap.appendChild(valInput);
+            markDirty();
+          };
+
           rowDiv.appendChild(label);
           rowDiv.appendChild(valuesWrap);
+          rowDiv.appendChild(addValBtn);
 
           specRowsWrap?.appendChild(rowDiv);
         });
       }
 
-      // faq
       faqData.forEach(function(f){
         const div = document.createElement('div');
         div.className = 'space-y-1';
 
-        div.innerHTML =
-          '<input value="'+(f.question || '')+'" class="w-full border px-3 py-2 rounded"/>' +
-          '<input value="'+(f.answer || '')+'" class="w-full border px-3 py-2 rounded"/>';
+        const qInput = document.createElement('input');
+        qInput.placeholder = 'Câu hỏi';
+        qInput.className = 'w-full border px-3 py-2 rounded';
+        qInput.value = f.question || '';
+
+        const aInput = document.createElement('input');
+        aInput.placeholder = 'Trả lời';
+        aInput.className = 'w-full border px-3 py-2 rounded';
+        aInput.value = f.answer || '';
+
+        div.appendChild(qInput);
+        div.appendChild(aInput);
 
         faqWrap?.appendChild(div);
       });
@@ -627,13 +705,48 @@ export default async function EditProductPage({ params }: Props) {
     }
   }
 
+  // ===== SUBMIT: đóng gói spec + faq trước khi gửi =====
+  if (form) {
+    form.addEventListener('submit', function(){
+      dirty = false;
+      submitBtn && submitBtn.setAttribute('disabled','true');
+
+      const columns = Array.from(specColumnsWrap?.querySelectorAll('input') || []).map(function(i){
+        return i.value;
+      });
+
+      const rows = Array.from(specRowsWrap?.children || []).map(function(row){
+        const inputs = row.querySelectorAll('input');
+        return {
+          label: inputs[0] ? inputs[0].value : '',
+          values: Array.from(inputs).slice(1).map(function(i){
+            return i.value;
+          })
+        };
+      });
+
+      if (specTableInput) {
+        specTableInput.value = JSON.stringify({ columns: columns, rows: rows });
+      }
+
+      const faq = Array.from(faqWrap?.children || []).map(function(item){
+        const inputs = item.querySelectorAll('input');
+        return {
+          question: inputs[0] ? inputs[0].value : '',
+          answer: inputs[1] ? inputs[1].value : ''
+        };
+      });
+
+      if (faqInput) {
+        faqInput.value = JSON.stringify(faq);
+      }
+    });
+  }
+
   // ===== INIT =====
   syncSlug();
-
-  // 🔥 chạy lần đầu
   setTimeout(renderSpecAndFaq, 100);
 
-  // 🔥 chạy lại khi quay lại page
   document.addEventListener('visibilitychange', function(){
     if (document.visibilityState === 'visible') {
       renderSpecAndFaq();

@@ -65,8 +65,8 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
         </div>
       </Link>
 
-      {/* CONTENT */}
-      <div className="flex flex-col p-4">
+      {/* CONTENT - thêm flex-1 để chiếm hết chiều cao còn lại của card */}
+      <div className="flex flex-col flex-1 p-4">
 
         {/* CATEGORY */}
         {p.category && (
@@ -75,9 +75,9 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
           </div>
         )}
 
-        {/* TITLE */}
+        {/* TITLE - thêm min-h-[40px] để khoá cứng chiều cao dù 1 hay 2 dòng */}
         <Link href={`/san-pham/${p.slug}`}>
-          <h2 className="text-[15px] font-semibold leading-snug text-gray-800 line-clamp-2 uppercase hover:text-[var(--color-primary)] transition">
+          <h2 className="text-[15px] font-semibold leading-snug text-gray-800 line-clamp-2 min-h-[40px] uppercase hover:text-[var(--color-primary)] transition">
             {p.name}
           </h2>
         </Link>
@@ -121,8 +121,8 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
           Giao hàng toàn quốc
         </div>
 
-        {/* CTA */}
-        <div className="pt-3 flex gap-2">
+        {/* CTA - thêm mt-auto để luôn dính đáy card */}
+        <div className="pt-3 flex gap-2 mt-auto">
 
           {/* XEM CHI TIẾT */}
           <Link

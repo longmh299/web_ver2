@@ -45,7 +45,7 @@ function cld(url?: string | null, w = 900, h = 600) {
     if (u.hostname.includes('res.cloudinary.com')) {
       return url.replace(
         '/upload/',
-        `/upload/c_fill,g_auto,f_auto,q_auto,w_${w},h_${h}/`
+        `/upload/c_fit,f_auto,q_auto,w_${w},h_${h}/`
       );
     }
   } catch { }

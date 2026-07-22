@@ -249,11 +249,17 @@ Nếu Quý khách cần tư vấn lựa chọn thiết bị hoặc nhận báo g
 </p>
 
 <p>
-<strong>Hotline / Zalo:</strong> 0834 551 888
+  <strong>Hotline / Zalo:</strong>
+  <a href="tel:0834551888">
+    0834 551 888
+  </a>
 </p>
 
 <p>
-<strong>Email:</strong> mcbrother2013@gmail.com
+  <strong>Email:</strong>
+  <a href="mailto:mcbrother2013@gmail.com">
+    mcbrother2013@gmail.com
+  </a>
 </p>
 
 <p>

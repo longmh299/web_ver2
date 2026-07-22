@@ -528,13 +528,40 @@ export default async function ProductDetailPage(
                 <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 shadow-sm">
 
                   <div
-                    className="blog-content prose max-w-none prose-slate
-                     prose-headings:text-[var(--color-primary-dark)]
-                     prose-table:border prose-table:border-[var(--color-border)]
-                     prose-th:bg-gray-50 prose-th:font-semibold
-                     prose-td:align-middle"
-                    dangerouslySetInnerHTML={{ __html: descHtml }}
-                  />
+  className="
+    blog-content
+    prose
+    max-w-none
+
+    [&_p]:!max-w-none
+    [&_h2]:!max-w-none
+    [&_h3]:!max-w-none
+    [&_ul]:!max-w-none
+    [&_ol]:!max-w-none
+    [&_table]:!w-full
+
+    prose-slate
+
+    prose-headings:text-[var(--color-primary-dark)]
+    prose-headings:font-semibold
+
+    prose-h2:my-4
+    prose-h3:my-3
+
+    prose-p:my-2
+    prose-p:leading-7
+
+    prose-li:my-1
+    prose-li:leading-6
+
+    prose-table:border
+    prose-table:border-[var(--color-border)]
+    prose-th:bg-gray-50
+    prose-th:font-semibold
+    prose-td:align-middle
+  "
+  dangerouslySetInnerHTML={{ __html: descHtml }}
+/>
 
                 </div>
               )}

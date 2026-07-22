@@ -3,7 +3,266 @@
 import * as React from 'react';
 import dynamic from 'next/dynamic';
 import type { IAllProps as TinyMCEProps } from '@tinymce/tinymce-react';
+const productTemplate = `
+<h2>Tên sản phẩm | Giải pháp tối ưu cho sản xuất</h2>
 
+<p>
+Giới thiệu tổng quan về sản phẩm. Mô tả vấn đề khách hàng đang gặp phải,
+vai trò của thiết bị trong quy trình sản xuất và những lợi ích nổi bật mà máy mang lại.
+</p>
+
+<p>
+Máy được thiết kế với kết cấu chắc chắn, khả năng vận hành ổn định,
+phù hợp cho các cơ sở sản xuất, nhà máy và doanh nghiệp cần nâng cao năng suất.
+</p>
+
+<hr />
+
+<h2>Vì sao nên sử dụng máy?</h2>
+
+<p>
+So với phương pháp truyền thống, máy mang lại nhiều ưu điểm vượt trội:
+</p>
+
+<ul>
+  <li>Tăng năng suất sản xuất.</li>
+  <li>Giảm thời gian xử lý.</li>
+  <li>Tiết kiệm chi phí nhân công.</li>
+  <li>Đảm bảo chất lượng sản phẩm đồng đều.</li>
+  <li>Vận hành đơn giản, dễ sử dụng.</li>
+</ul>
+
+<p>
+Thiết bị phù hợp cho các cơ sở sản xuất chuyên nghiệp cần giải pháp ổn định và hiệu quả.
+</p>
+
+<hr />
+
+<h2>Máy có thể xử lý những nguyên liệu nào?</h2>
+
+<p>
+Thiết bị có khả năng xử lý nhiều loại nguyên liệu khác nhau:
+</p>
+
+<h3>Ngành thực phẩm</h3>
+
+<ul>
+  <li>Nguyên liệu thực phẩm.</li>
+  <li>Nông sản.</li>
+  <li>Gia vị.</li>
+  <li>Sản phẩm dạng khô hoặc dạng ướt.</li>
+</ul>
+
+<h3>Ngành công nghiệp khác</h3>
+
+<ul>
+  <li>Nguyên liệu sản xuất.</li>
+  <li>Hóa chất.</li>
+  <li>Vật liệu công nghiệp.</li>
+</ul>
+
+<hr />
+
+<h2>Ứng dụng thực tế</h2>
+
+<p>
+Máy được ứng dụng rộng rãi trong nhiều lĩnh vực:
+</p>
+
+<h3>Ngành thực phẩm</h3>
+
+<ul>
+  <li>Sản xuất và chế biến thực phẩm.</li>
+  <li>Nhà máy chế biến nông sản.</li>
+  <li>Cơ sở sản xuất vừa và nhỏ.</li>
+</ul>
+
+<h3>Ngành mỹ phẩm</h3>
+
+<ul>
+  <li>Sản xuất mỹ phẩm.</li>
+  <li>Gia công nguyên liệu.</li>
+</ul>
+
+<h3>Ngành công nghiệp</h3>
+
+<ul>
+  <li>Dây chuyền sản xuất công nghiệp.</li>
+  <li>Xưởng gia công chuyên nghiệp.</li>
+</ul>
+
+<hr />
+
+<h2>Nguyên lý hoạt động</h2>
+
+<p>
+Mô tả nguyên lý hoạt động của máy.
+Quá trình vận hành giúp xử lý nguyên liệu nhanh chóng,
+ổn định và đảm bảo chất lượng đầu ra.
+</p>
+
+<ol>
+  <li>Chuẩn bị nguyên liệu.</li>
+  <li>Đưa nguyên liệu vào máy.</li>
+  <li>Máy thực hiện quá trình xử lý.</li>
+  <li>Thu thành phẩm sau khi hoàn thành.</li>
+</ol>
+
+<hr />
+
+<h2>Ưu điểm nổi bật</h2>
+
+<h3>Thiết kế chắc chắn</h3>
+
+<p>
+Máy sử dụng vật liệu chất lượng cao, kết cấu bền bỉ,
+phù hợp với môi trường sản xuất công nghiệp.
+</p>
+
+<h3>Hiệu suất hoạt động cao</h3>
+
+<p>
+Động cơ mạnh mẽ giúp máy vận hành ổn định,
+đáp ứng nhu cầu sản xuất liên tục.
+</p>
+
+<h3>Dễ dàng vệ sinh và bảo trì</h3>
+
+<p>
+Thiết kế tối ưu giúp người dùng dễ dàng vệ sinh,
+bảo dưỡng và thay thế linh kiện khi cần thiết.
+</p>
+
+<hr />
+
+<h2>Thông số kỹ thuật</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Thông số</th>
+      <th>Giá trị</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>Model</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>Công suất</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>Điện áp</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>Kích thước</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>Trọng lượng</td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td>Vật liệu</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>
+Thông số được tổng hợp từ dữ liệu sản phẩm MCBrother.
+</em></p>
+
+<hr />
+
+<h2>Hướng dẫn sử dụng</h2>
+
+<ol>
+  <li>Kiểm tra máy trước khi vận hành.</li>
+  <li>Kết nối nguồn điện phù hợp.</li>
+  <li>Cài đặt thông số theo nhu cầu sử dụng.</li>
+  <li>Đưa nguyên liệu vào máy.</li>
+  <li>Vệ sinh máy sau khi hoàn thành.</li>
+</ol>
+
+<hr />
+
+<h2>Hướng dẫn vệ sinh và bảo dưỡng</h2>
+
+<ul>
+  <li>Vệ sinh máy sau mỗi lần sử dụng.</li>
+  <li>Kiểm tra các bộ phận hoạt động định kỳ.</li>
+  <li>Không vận hành máy vượt công suất.</li>
+  <li>Thay thế linh kiện khi có dấu hiệu hao mòn.</li>
+</ul>
+
+<hr />
+
+<h2>Câu hỏi thường gặp</h2>
+
+<h3>Máy phù hợp với những doanh nghiệp nào?</h3>
+
+<p>
+Máy phù hợp với cơ sở sản xuất thực phẩm,
+nhà máy công nghiệp và các doanh nghiệp cần nâng cao năng suất.
+</p>
+
+<h3>Máy có thể hoạt động liên tục không?</h3>
+
+<p>
+Có. Thiết bị được thiết kế để đáp ứng nhu cầu vận hành ổn định trong sản xuất.
+</p>
+
+<h3>Máy có dễ sử dụng không?</h3>
+
+<p>
+Có. Người vận hành chỉ cần thực hiện các bước cài đặt cơ bản là có thể sử dụng.
+</p>
+
+<hr />
+
+<h2>Vì sao nên chọn MCBrother?</h2>
+
+<ul>
+  <li>Tư vấn lựa chọn máy phù hợp với nhu cầu.</li>
+  <li>Hỗ trợ kỹ thuật trong quá trình sử dụng.</li>
+  <li>Cung cấp giải pháp máy móc đồng bộ.</li>
+  <li>Đảm bảo chất lượng và dịch vụ sau bán hàng.</li>
+</ul>
+
+<hr />
+
+<h2>Liên hệ tư vấn và báo giá</h2>
+
+<p>
+Nếu Quý khách cần tư vấn lựa chọn thiết bị hoặc nhận báo giá,
+đội ngũ MCBrother luôn sẵn sàng hỗ trợ.
+</p>
+
+<p>
+<strong>Hotline / Zalo:</strong> 0834 551 888
+</p>
+
+<p>
+<strong>Email:</strong> mcbrother2013@gmail.com
+</p>
+
+<p>
+  <strong>Website:</strong>
+  <a href="https://mcbrother.com.vn" target="_blank" rel="noopener">
+    mcbrother.com.vn
+  </a>
+</p>
+`;
 const TinyMCEEditor = dynamic<TinyMCEProps>(
   () =>
     import('@tinymce/tinymce-react').then(
@@ -141,7 +400,7 @@ export default function RichEditorClient({
           // `,
 
           // valid_styles: { '*': '' },
-          
+
           content_style: `
             table { border-collapse: collapse; width: 100%; }
             td, th { border: 1px solid #ddd; padding: 8px; }
@@ -154,7 +413,13 @@ export default function RichEditorClient({
               text: 'Chèn nhanh',
               fetch: (callback) => {
                 callback([
-
+                  {
+                    type: 'menuitem',
+                    text: 'Template sản phẩm',
+                    onAction: () => {
+                      editor.insertContent(productTemplate);
+                    }
+                  },
                   {
                     type: 'menuitem',
                     text: 'Nút CTA',

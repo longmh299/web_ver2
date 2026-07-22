@@ -77,7 +77,7 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
 
         {/* TITLE */}
         <Link href={`/san-pham/${p.slug}`}>
-          <h2 className="text-[15px] font-semibold leading-snug text-gray-800 line-clamp-2 hover:text-[var(--color-primary)] transition">
+          <h2 className="text-[15px] font-semibold leading-snug text-gray-800 line-clamp-2 uppercase hover:text-[var(--color-primary)] transition">
             {p.name}
           </h2>
         </Link>

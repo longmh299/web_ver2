@@ -90,7 +90,7 @@ export default async function ProductsPage() {
                   </h2>
 
                   <Link
-                    href={`/danh-muc/${cat.slug}`}
+                    href={`/${cat.slug}`}
                     className="flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] transition shrink-0"
                   >
                     Xem thêm

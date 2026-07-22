@@ -2,7 +2,7 @@
 
 import type { Metadata } from "next";
 import ProductCard from "@/components/ProductCard";
-import CategoryChips from "@/components/CategoryChips";
+import CategoryMegaMenu from "@/components/CategoryMegaMenu";
 import { prisma } from "@/lib/prisma";
 import { abs } from "@/lib/site";
 import { redirect, notFound } from "next/navigation";
@@ -90,27 +90,16 @@ export default async function CategoryPage(
   });
 
   // ==========================
-  // Chips
-  // Nếu có con => hiện con
-  // Không có con => hiện anh em cùng cấp
+  // Danh mục cho dropdown menu: TOÀN BỘ danh mục có sản phẩm trên site
+  // (giống hệt trang /san-pham, không giới hạn theo nhóm cha)
   // ==========================
-  const relatedCategories =
-    children.length > 0
-      ? children
-      : await prisma.category.findMany({
-          where: {
-            parentId: c.parentId,
-          },
-          orderBy: [
-            { order: "asc" },
-            { name: "asc" },
-          ],
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        });
+  const allCategories = await prisma.category.findMany({
+    where: {
+      products: { some: { published: true } },
+    },
+    orderBy: [{ order: "asc" }, { id: "asc" }],
+    select: { id: true, name: true, slug: true },
+  });
 
   // ==========================
   // Lấy product
@@ -197,10 +186,17 @@ export default async function CategoryPage(
 
 </section>
 
+      {/* ===== DROPDOWN CHỌN DÒNG MÁY (đồng bộ mega-menu với /san-pham) ===== */}
+      {allCategories.length > 0 && (
+        <CategoryMegaMenu
+          categories={allCategories}
+          label="Chọn dòng máy"
+          mode="link"
+        />
+      )}
+
       <section className="py-12">
         <div className="max-w-7xl xl:max-w-[1280px] mx-auto px-4">
-
-          <CategoryChips categories={relatedCategories} />
 
           {products.length > 0 ? (
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

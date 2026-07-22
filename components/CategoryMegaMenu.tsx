@@ -7,8 +7,12 @@ type Category = { id: number; name: string; slug: string };
 
 export default function CategoryMegaMenu({
   categories,
+  label = "Danh mục sản phẩm",
+  mode = "anchor",
 }: {
   categories: Category[];
+  label?: string;
+  mode?: "anchor" | "link";
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -46,7 +50,7 @@ export default function CategoryMegaMenu({
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition"
           >
             <LayoutGrid className="w-4 h-4" />
-            Danh mục sản phẩm
+            {label}
             <ChevronDown
               className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
             />
@@ -60,7 +64,7 @@ export default function CategoryMegaMenu({
               {categories.map((cat) => (
                 <a
                   key={cat.id}
-                  href={`#cat-${cat.slug}`}
+                  href={mode === "anchor" ? `#cat-${cat.slug}` : `/${cat.slug}`}
                   onClick={() => setOpen(false)}
                   className="px-3 py-2.5 rounded-lg text-[14px] font-medium uppercase text-gray-700 hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] transition"
                 >

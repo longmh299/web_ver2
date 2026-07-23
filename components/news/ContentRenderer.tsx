@@ -1,4 +1,3 @@
-
 'use client';
 
 import parse, {
@@ -37,6 +36,26 @@ function safeImgAttribs(attribs: Record<string, any> = {}) {
   );
 }
 
+// 🔥 ghi đè transform Cloudinary trong nội dung bài viết:
+// dù CMS/trình soạn thảo chèn sẵn c_fill,w_,h_ (ép crop vuông/cắt mất máy),
+// ta luôn thay bằng c_limit (chỉ giới hạn kích thước tối đa, KHÔNG bao giờ crop)
+function normalizeContentImgSrc(src?: string) {
+  if (!src) return src;
+  try {
+    const u = new URL(src);
+    if (u.hostname.includes('res.cloudinary.com') && u.pathname.includes('/upload/')) {
+      const beforeUpload = u.pathname.split('/upload/')[0];
+      const afterUpload = u.pathname.split('/upload/')[1] || '';
+      const parts = afterUpload.split('/');
+      const versionIndex = parts.findIndex((p) => /^v\d+$/.test(p));
+      const rest = versionIndex >= 0 ? parts.slice(versionIndex).join('/') : afterUpload;
+
+      return `${u.origin}${beforeUpload}/upload/c_limit,f_auto,q_auto,w_1200/${rest}`;
+    }
+  } catch {}
+  return src;
+}
+
 export default function ContentRenderer({ html }: Props) {
 
   // ===== normalize =====
@@ -59,9 +78,11 @@ export default function ContentRenderer({ html }: Props) {
 
       // ===== IMAGE =====
       if (node.name === 'img') {
+        const attribs = safeImgAttribs(node.attribs);
         return (
           <img
-            {...safeImgAttribs(node.attribs)}
+            {...attribs}
+            src={normalizeContentImgSrc(attribs.src)}
             loading="lazy"
             className="
               rounded-xl
@@ -70,7 +91,6 @@ export default function ContentRenderer({ html }: Props) {
               w-full
               h-auto
               max-w-full
-              object-cover
             "
           />
         );

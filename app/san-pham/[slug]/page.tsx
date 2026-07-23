@@ -422,7 +422,7 @@ export default async function ProductDetailPage(
                     <div className="bg-white border border-[var(--color-border)] rounded-2xl overflow-hidden shadow-sm">
 
                       {/* HEADER */}
-                      {/* <div
+                      <div
                         className="grid text-sm font-semibold bg-gray-50"
                         style={{ gridTemplateColumns: `200px repeat(${columns.length}, 1fr)` }}
                       >
@@ -433,7 +433,7 @@ export default async function ProductDetailPage(
                             {col}
                           </div>
                         ))}
-                      </div> */}
+                      </div>
 
                       {/* ROWS */}
                       {rows.map((row, i) => (

@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { decode } from 'he';
+import { ImageOff } from 'lucide-react';
+import { abs } from '@/lib/site';
 
 export const revalidate = 60;
 
@@ -50,6 +52,50 @@ function injectHeadingIds(html: string) {
   });
 }
 
+// 🔥 tối ưu ảnh qua Cloudinary (banner hero: cho phép crop vì là ảnh nền trang trí)
+function cldBanner(url?: string | null, w = 1600, h = 500) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('res.cloudinary.com') && u.pathname.includes('/upload/')) {
+      return url.replace(
+        '/upload/',
+        `/upload/c_fill,g_auto,f_auto,q_auto,dpr_auto,w_${w},h_${h}/`
+      );
+    }
+  } catch {}
+  return url;
+}
+
+// 🔥 srcSet responsive cho ảnh hero: mobile tải bản nhỏ, desktop tải bản lớn
+function cldBannerSet(url?: string | null) {
+  if (!url) return undefined;
+  const variants = [
+    { w: 480, h: 240 },
+    { w: 768, h: 380 },
+    { w: 1200, h: 420 },
+    { w: 1600, h: 500 },
+  ];
+  return variants
+    .map((v) => `${cldBanner(url, v.w, v.h)} ${v.w}w`)
+    .join(', ');
+}
+
+// 🔥 ảnh bài liên quan: không crop, hiện trọn ảnh
+function cldPost(url?: string | null, w = 500, h = 320) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('res.cloudinary.com') && u.pathname.includes('/upload/')) {
+      return url.replace(
+        '/upload/',
+        `/upload/c_fit,f_auto,q_auto,dpr_auto,w_${w},h_${h}/`
+      );
+    }
+  } catch {}
+  return url;
+}
+
 /* ================= DATA ================= */
 
 async function getPost(slug?: string) {
@@ -84,13 +130,34 @@ export async function generateMetadata({
 
   if (!post) return {};
 
+  const title = post.metaTitle || post.title;
+  const description = post.metaDescription || post.excerpt || '';
+  const url = post.canonicalUrl || abs(`/tin-tuc/${post.slug}`);
+  const image = post.ogImage || post.coverImage || abs('/images/placeholder.jpg');
+
   return {
-    title: post.metaTitle || post.title,
-    description: post.metaDescription || post.excerpt || '',
+    title,
+    description,
+    alternates: { canonical: url },
     openGraph: {
+      type: 'article',
       title: post.title,
-      description: post.excerpt || '',
-      images: post.ogImage || post.coverImage || undefined,
+      description,
+      url,
+      images: [{ url: image }],
+      publishedTime: post.createdAt.toISOString(),
+      modifiedTime: post.updatedAt.toISOString(),
+      tags: post.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description,
+      images: [image],
+    },
+    robots: {
+      index: !post.noindex,
+      follow: !post.nofollow,
     },
   };
 }
@@ -118,14 +185,52 @@ export default async function NewsDetailPage({
 
   const related = await getRelated(post.id, post.categoryId);
 
+  // 🔥 JSON-LD Article schema cho SEO
+  const postUrl = post.canonicalUrl || abs(`/tin-tuc/${post.slug}`);
+  const postImage = post.ogImage || post.coverImage || abs('/images/placeholder.jpg');
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.metaDescription || post.excerpt || undefined,
+    image: [postImage],
+    datePublished: post.createdAt.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    author: {
+      '@type': 'Organization',
+      name: 'MCBROTHER JSC',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'MCBROTHER JSC',
+      logo: {
+        '@type': 'ImageObject',
+        url: abs('/images/logo.png'),
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': postUrl,
+    },
+  };
+
   return (
     <div className="bg-[var(--color-bg)] text-slate-800">
 
+      {/* 🔥 JSON-LD SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* ================= HERO ================= */}
-      <div className="relative w-full h-[240px] sm:h-[320px] md:h-[420px] overflow-hidden">
+      <div className="relative w-full h-[200px] sm:h-[320px] md:h-[420px] overflow-hidden">
         {post.coverImage && (
           <img
-            src={post.coverImage}
+            src={cldBanner(post.coverImage) ?? undefined}
+            srcSet={cldBannerSet(post.coverImage)}
+            sizes="100vw"
             alt={post.title}
             className="absolute inset-0 w-full h-full object-cover"
           />
@@ -148,7 +253,7 @@ export default async function NewsDetailPage({
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-tight mb-3 sm:mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-tight mb-3 sm:mb-4 line-clamp-3">
             {post.title}
           </h1>
 
@@ -209,7 +314,7 @@ export default async function NewsDetailPage({
 
             <Link
               href="/lien-he"
-              className="bg-white text-black px-6 py-3 rounded-lg inline-block"
+              className="bg-white text-black px-6 py-3 rounded-lg block sm:inline-block w-full sm:w-auto text-center font-medium"
             >
               Liên hệ ngay
             </Link>
@@ -223,31 +328,43 @@ export default async function NewsDetailPage({
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
-                {related.map((r) => (
-                  <Link key={r.id} href={`/tin-tuc/${r.slug}`}>
-                    <div className="group border rounded-2xl overflow-hidden hover:shadow-lg transition bg-white h-full flex flex-col">
+                {related.map((r) => {
+                  const relImg = cldPost(r.coverImage);
 
-                      <div className="overflow-hidden aspect-[16/10]">
-                        <img
-                          src={r.coverImage || ''}
-                          alt={r.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition"
-                        />
-                      </div>
+                  return (
+                    <Link key={r.id} href={`/tin-tuc/${r.slug}`}>
+                      <div className="group border rounded-2xl overflow-hidden hover:shadow-lg transition bg-white h-full flex flex-col">
 
-                      <div className="p-4 flex-1 flex flex-col">
-                        <div className="text-xs text-gray-400 mb-2">
-                          {fmtDate(r.createdAt)}
+                        <div className="overflow-hidden bg-white aspect-[16/10]">
+                          {relImg ? (
+                            <img
+                              src={relImg}
+                              alt={r.title}
+                              loading="lazy"
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-gray-300">
+                              <ImageOff className="w-8 h-8" />
+                              <span className="text-xs">Không có ảnh</span>
+                            </div>
+                          )}
                         </div>
 
-                        <div className="font-semibold line-clamp-2 group-hover:text-[var(--color-accent)]">
-                          {r.title}
-                        </div>
-                      </div>
+                        <div className="p-4 flex-1 flex flex-col">
+                          <div className="text-xs text-gray-400 mb-2">
+                            {fmtDate(r.createdAt)}
+                          </div>
 
-                    </div>
-                  </Link>
-                ))}
+                          <div className="font-semibold line-clamp-2 group-hover:text-[var(--color-accent)]">
+                            {r.title}
+                          </div>
+                        </div>
+
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -256,7 +373,7 @@ export default async function NewsDetailPage({
         {/* SIDEBAR (chỉ hiện từ lg trở lên) */}
         {headings.length > 0 && (
           <div className="hidden lg:block">
-            <div className="sticky top-24">
+            <div className="sticky top-20">
 
               <div className="border rounded-2xl p-5 bg-white shadow-sm">
                 <div className="font-semibold mb-4">

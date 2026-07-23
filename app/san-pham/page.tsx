@@ -52,7 +52,7 @@ export default async function ProductsPage() {
       {/* ===== HERO ===== */}
       <section className="relative overflow-hidden min-h-[340px]">
         <img
-          src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1778214441/ChatGPT_Image_11_26_29_8_thg_5_2026_vuknuv.png"
+          src="https://res.cloudinary.com/ds55hfvx4/image/upload/v1784716674/banner_may_moc_cong_nghiep_fa8smo.webp"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/55 to-slate-900/20" />

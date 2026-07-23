@@ -1,4 +1,3 @@
-
 // app/tin-tuc/page.tsx
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -39,6 +38,23 @@ function fmtDate(d?: Date | string | null) {
     month: "2-digit",
     year: "numeric",
   }).format(dt);
+}
+
+function cldPost(url?: string | null, w = 600, h = 450) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (
+      u.hostname.includes("res.cloudinary.com") &&
+      u.pathname.includes("/upload/")
+    ) {
+      return url.replace(
+        "/upload/",
+        `/upload/c_fit,f_auto,q_auto,dpr_auto,w_${w},h_${h}/`
+      );
+    }
+  } catch {}
+  return url;
 }
 
 async function getData(params: SearchParams) {
@@ -305,23 +321,20 @@ export default async function NewsPage({
               >
 
                 {/* IMAGE */}
-                <div className="overflow-hidden bg-gray-100">
+                <div className="overflow-hidden bg-white">
 
                   <div className="aspect-[4/3]">
 
                     {n.coverImage ? (
 
                       <img
-                        src={n.coverImage}
+                        src={cldPost(n.coverImage) ?? undefined}
                         alt={n.title}
                         loading="lazy"
                         className="
                           h-full
                           w-full
-                          object-cover
-                          transition
-                          duration-300
-                          group-hover:scale-[1.04]
+                          object-contain
                         "
                       />
 

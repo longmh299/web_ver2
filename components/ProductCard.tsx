@@ -26,7 +26,7 @@ function cldThumb(url: string | null, w = 600, h = 600) {
     ) {
       return url.replace(
         "/upload/",
-        `/upload/c_fill,g_auto:subject,f_auto,q_auto,dpr_auto,w_${w},h_${h}/`
+        `/upload/c_fit,f_auto,q_auto,dpr_auto,w_${w},h_${h}/`
       );
     }
   } catch { }

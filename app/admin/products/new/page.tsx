@@ -177,6 +177,24 @@ export default async function NewProductPage() {
               </select>
             </div>
           </div>
+
+          {/* Card 3.5: Thông số bổ sung (tuỳ chỉnh) */}
+          <div className="rounded-2xl border bg-white shadow-sm">
+            <div className="border-b px-5 py-3 font-medium">
+              Thông số bổ sung (tuỳ chỉnh)
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div id="attrWrap" className="space-y-3"></div>
+
+              <button type="button" id="addAttrBtn" className="text-sm text-blue-600">
+                + Thêm thuộc tính
+              </button>
+
+              <input type="hidden" name="attributes" id="attrInput" />
+            </div>
+          </div>
+
           {/* Card 4: Bảng thông số nâng cao */}
           <div className="rounded-2xl border bg-white shadow-sm">
             <div className="border-b px-5 py-3 font-medium">
@@ -288,6 +306,10 @@ export default async function NewProductPage() {
   const specTableInput = document.getElementById('specTableInput');
   const faqWrap = document.getElementById('faqWrap');
   const faqInput = document.getElementById('faqInput');
+
+  // THÔNG SỐ BỔ SUNG
+  const attrWrap = document.getElementById('attrWrap');
+  const attrInput = document.getElementById('attrInput');
 
   let dirty = false;
   const markDirty = function(){ dirty = true; };
@@ -428,9 +450,29 @@ export default async function NewProductPage() {
     faqWrap.appendChild(item);
   };
 
+  // ---------- THÔNG SỐ BỔ SUNG ----------
+  const addAttr = function(){
+    if (!attrWrap) return;
+
+    const row = document.createElement('div');
+    row.className = 'flex gap-2';
+
+    row.innerHTML =
+      '<input placeholder="Tên thuộc tính (VD: Xuất xứ)" class="attrName flex-1 border px-3 py-2 rounded"/>' +
+      '<input placeholder="Giá trị (VD: Đài Loan)" class="attrValue flex-1 border px-3 py-2 rounded"/>' +
+      '<button type="button" class="removeAttr text-red-500 text-sm px-2">Xoá</button>';
+
+    row.querySelector('.removeAttr').onclick = function(){
+      row.remove();
+    };
+
+    attrWrap.appendChild(row);
+  };
+
   document.getElementById('addColumnBtn')?.addEventListener('click', addColumn);
   document.getElementById('addRowBtn')?.addEventListener('click', addRow);
   document.getElementById('addFaqBtn')?.addEventListener('click', addFaq);
+  document.getElementById('addAttrBtn')?.addEventListener('click', addAttr);
 
   // ---------- SUBMIT ----------
   if (form) {
@@ -470,6 +512,20 @@ export default async function NewProductPage() {
 
       if (faqInput) {
         faqInput.value = JSON.stringify(faq);
+      }
+
+      // thông số bổ sung
+      const attrs = Array.from(attrWrap?.children || [])
+        .map(function(row){
+          return {
+            name: row.querySelector('.attrName')?.value?.trim() || '',
+            value: row.querySelector('.attrValue')?.value?.trim() || '',
+          };
+        })
+        .filter(function(a){ return a.name && a.value; });
+
+      if (attrInput) {
+        attrInput.value = JSON.stringify(attrs);
       }
     });
   }

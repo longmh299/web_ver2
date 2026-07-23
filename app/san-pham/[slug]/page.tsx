@@ -296,7 +296,7 @@ export default async function ProductDetailPage(
           <div className="grid lg:grid-cols-2 gap-10">
 
             {/* ===== LEFT ===== */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:mt-[100px]">
 
               {/* IMAGE + VIDEO */}
               <ProductMedia
@@ -358,22 +358,70 @@ export default async function ProductDetailPage(
               </div>
 
               {/* SPECS */}
-              {(p.power || p.voltage || p.weight || p.dimensions || p.functions || p.material) && (
-                <div className="bg-white border border-[var(--color-border)] rounded-2xl p-5 shadow-md">
-                  <h2 className="text-base font-semibold mb-3 text-[var(--color-primary-dark)]">
+              {(p.power || p.voltage || p.weight || p.dimensions || p.functions || p.material || p.attributes.length > 0) && (
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm max-w-3xl">
+                  <h2 className="text-base font-bold mb-4 text-[var(--color-primary-dark)]">
                     Thông số kỹ thuật
                   </h2>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    {p.power && <div className="bg-gray-20 p-2 rounded"><b>Công suất:</b> {p.power}</div>}
-                    {p.voltage && <div className="bg-gray-20 p-2 rounded"><b>Điện áp:</b> {p.voltage}</div>}
-                    {p.weight && <div className="bg-gray-20 p-2 rounded"><b>Cân nặng:</b> {p.weight}</div>}
-                    {p.dimensions && <div className="bg-gray-20 p-2 rounded"><b>Kích thước:</b> {p.dimensions}</div>}
-                    {p.functions && <div className="bg-gray-20 p-2 rounded"><b>Chức năng:</b> {p.functions}</div>}
-                    {p.material && <div className="bg-gray-20 p-2 rounded"><b>Vật liệu:</b> {p.material}</div>}
+                  {/* Sử dụng Grid chia 2 cột mượt mà, căn chỉnh đồng đều */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 text-sm text-gray-700">
+
+                    {p.power && (
+                      <div className="flex items-center py-3 border-b border-gray-100">
+                        <span className="w-1/3 text-gray-400 font-medium shrink-0">Công suất</span>
+                        <span className="w-2/3 text-gray-900 font-semibold pl-2">{p.power}</span>
+                      </div>
+                    )}
+
+                    {p.voltage && (
+                      <div className="flex items-center py-3 border-b border-gray-100">
+                        <span className="w-1/3 text-gray-400 font-medium shrink-0">Điện áp</span>
+                        <span className="w-2/3 text-gray-900 font-semibold pl-2">{p.voltage}</span>
+                      </div>
+                    )}
+
+                    {p.weight && (
+                      <div className="flex items-center py-3 border-b border-gray-100">
+                        <span className="w-1/3 text-gray-400 font-medium shrink-0">Cân nặng</span>
+                        <span className="w-2/3 text-gray-900 font-semibold pl-2">{p.weight}</span>
+                      </div>
+                    )}
+
+                    {p.dimensions && (
+                      <div className="flex items-center py-3 border-b border-gray-100">
+                        <span className="w-1/3 text-gray-400 font-medium shrink-0">Kích thước</span>
+                        <span className="w-2/3 text-gray-900 font-semibold pl-2">{p.dimensions}</span>
+                      </div>
+                    )}
+
+                    {p.material && (
+                      <div className="flex items-center py-3 border-b border-gray-100">
+                        <span className="w-1/3 text-gray-400 font-medium shrink-0">Vật liệu</span>
+                        <span className="w-2/3 text-gray-900 font-semibold pl-2">{p.material}</span>
+                      </div>
+                    )}
+
+                    {/* Rút các thuộc tính bổ sung vào chung luồng 2 cột */}
+                    {p.attributes.map((a, i) => (
+                      <div key={i} className="flex items-center py-3 border-b border-gray-100">
+                        <span className="w-1/3 text-gray-400 font-medium shrink-0">{a.name}</span>
+                        <span className="w-2/3 text-gray-900 font-semibold pl-2">{a.value}</span>
+                      </div>
+                    ))}
+
+                    {/* Đẩy Chức năng xuống cuối và cho chiếm trọn cả hàng để text dài hiển thị thoải mái nhất */}
+                    {p.functions && (
+                      <div className="flex items-start py-3 border-b border-gray-100 md:col-span-2">
+                        <span className="w-1/3 md:w-[16.6%] text-gray-400 font-medium shrink-0">Chức năng</span>
+                        <span className="w-2/3 md:w-[83.4%] text-gray-900 font-semibold pl-2">{p.functions}</span>
+                      </div>
+                    )}
+
                   </div>
                 </div>
               )}
+
 
 
 
@@ -422,7 +470,7 @@ export default async function ProductDetailPage(
                     <div className="bg-white border border-[var(--color-border)] rounded-2xl overflow-hidden shadow-sm">
 
                       {/* HEADER */}
-                      <div
+                      {/* <div
                         className="grid text-sm font-semibold bg-gray-50"
                         style={{ gridTemplateColumns: `200px repeat(${columns.length}, 1fr)` }}
                       >
@@ -433,10 +481,10 @@ export default async function ProductDetailPage(
                             {col}
                           </div>
                         ))}
-                      </div>
+                      </div> */}
 
                       {/* ROWS */}
-                      {rows.map((row, i) => (
+                      {/* {rows.map((row, i) => (
                         <div
                           key={i}
                           className={`grid text-sm border-t border-[var(--color-border)] ${i % 2 === 0 ? "bg-white" : "bg-gray-50"
@@ -453,7 +501,7 @@ export default async function ProductDetailPage(
                             </div>
                           ))}
                         </div>
-                      ))}
+                      ))} */}
 
                     </div>
                   </div>

@@ -48,6 +48,24 @@ function toEmbedUrl(url: string | null) {
   }
 }
 
+// 🔥 parse danh sách thông số bổ sung từ form
+type AttrInput = { name: string; value: string };
+
+function parseAttributes(formData: FormData): AttrInput[] {
+  try {
+    const raw = JSON.parse((formData.get('attributes') as string) || '[]');
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map((a: any) => ({
+        name: String(a?.name ?? '').trim(),
+        value: String(a?.value ?? '').trim(),
+      }))
+      .filter((a) => a.name && a.value);
+  } catch {
+    return [];
+  }
+}
+
 export async function createProduct(formData: FormData) {
   const name = asString(formData.get('name'));
   const slug =
@@ -65,6 +83,8 @@ export async function createProduct(formData: FormData) {
   const videoUrl = toEmbedUrl(orNull(videoUrlRaw));
   const specTable = JSON.parse((formData.get('specTable') as string) || 'null');
   const faqs = JSON.parse((formData.get('faqs') as string) || '[]');
+  const attributesInput = parseAttributes(formData); // 🔥
+
   const data = {
     name,
     slug,
@@ -88,7 +108,7 @@ export async function createProduct(formData: FormData) {
     dimensions: asString(formData.get('dimensions')) || null,
     functions: asString(formData.get('functions')) || null,
     material: asString(formData.get('material')) || null,
-    warranty: asString(formData.get('warranty')) || null,   // 👈 thêm dòng này
+    warranty: asString(formData.get('warranty')) || null,
 
     metaTitle: asString(formData.get('metaTitle')) || null,
     metaDescription: asString(formData.get('metaDescription')) || null,
@@ -100,7 +120,20 @@ export async function createProduct(formData: FormData) {
     categoryId: asInt(formData.get('categoryId')),
   };
 
-  await prisma.product.create({ data });
+  await prisma.product.create({
+    data: {
+      ...data,
+      // 🔥 tạo luôn thông số bổ sung (quan hệ 1-nhiều) cùng lúc tạo sản phẩm
+      attributes: {
+        create: attributesInput.map((a, i) => ({
+          name: a.name,
+          value: a.value,
+          sort: i,
+        })),
+      },
+    },
+  });
+
   revalidatePath('/admin/products');
   redirect('/admin/products');
 }
@@ -124,6 +157,8 @@ export async function updateProduct(formData: FormData) {
   const videoUrl = toEmbedUrl(orNull(videoUrlRaw));
   const specTable = JSON.parse((formData.get('specTable') as string) || 'null');
   const faqs = JSON.parse((formData.get('faqs') as string) || '[]');
+  const attributesInput = parseAttributes(formData); // 🔥
+
   const data = {
     name,
     slug,
@@ -145,7 +180,7 @@ export async function updateProduct(formData: FormData) {
     dimensions: asString(formData.get('dimensions')) || null,
     functions: asString(formData.get('functions')) || null,
     material: asString(formData.get('material')) || null,
-    warranty: asString(formData.get('warranty')) || null,   // 👈 thêm dòng này
+    warranty: asString(formData.get('warranty')) || null,
 
     metaTitle: asString(formData.get('metaTitle')) || null,
     metaDescription: asString(formData.get('metaDescription')) || null,
@@ -156,10 +191,25 @@ export async function updateProduct(formData: FormData) {
 
     categoryId: asInt(formData.get('categoryId')),
     specTable,
-  faqs,
+    faqs,
   };
 
-  await prisma.product.update({ where: { id }, data });
+  await prisma.product.update({
+    where: { id },
+    data: {
+      ...data,
+      // 🔥 xoá hết thông số bổ sung cũ, tạo lại từ danh sách mới nhất (đơn giản, luôn đồng bộ đúng)
+      attributes: {
+        deleteMany: {},
+        create: attributesInput.map((a, i) => ({
+          name: a.name,
+          value: a.value,
+          sort: i,
+        })),
+      },
+    },
+  });
+
   revalidatePath('/admin/products');
   redirect('/admin/products');
 }

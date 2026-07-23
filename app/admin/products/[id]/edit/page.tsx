@@ -48,8 +48,11 @@ export default async function EditProductPage({ params }: Props) {
         categoryId: true,
         specTable: true,
         faqs: true,
-        warranty: true,      // 👈 thêm dòng này
-
+        warranty: true,
+        attributes: {
+          select: { name: true, value: true },
+          orderBy: { sort: "asc" },
+        },
       },
     }),
     prisma.category.findMany({
@@ -315,6 +318,31 @@ export default async function EditProductPage({ params }: Props) {
               </select>
             </div>
           </div>
+
+          {/* Card 3.5: Thông số bổ sung (tuỳ chỉnh) */}
+          <div className="rounded-2xl border bg-white shadow-sm">
+            <div className="border-b px-5 py-3 font-medium">
+              Thông số bổ sung (tuỳ chỉnh)
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div id="attrWrap" className="space-y-3"></div>
+
+              <button type="button" id="addAttrBtn" className="text-sm text-blue-600">
+                + Thêm thuộc tính
+              </button>
+
+              {/* 🔥 prefill dữ liệu cũ */}
+              <input
+                key={`attr-${product.id}`}
+                type="hidden"
+                id="attrInput"
+                name="attributes"
+                value={JSON.stringify(product.attributes ?? [])}
+              />
+            </div>
+          </div>
+
           {/* Card 4: Bảng thông số nâng cao */}
           <div className="rounded-2xl border bg-white shadow-sm">
             <div className="border-b px-5 py-3 font-medium">
@@ -486,6 +514,10 @@ export default async function EditProductPage({ params }: Props) {
   const faqWrap = document.getElementById('faqWrap');
   const faqInput = document.getElementById('faqInput');
 
+  // THÔNG SỐ BỔ SUNG
+  const attrWrap = document.getElementById('attrWrap');
+  const attrInput = document.getElementById('attrInput');
+
   let dirty = false;
   const markDirty = function(){ dirty = true; };
 
@@ -621,19 +653,43 @@ export default async function EditProductPage({ params }: Props) {
     markDirty();
   };
 
+  // ===== THÔNG SỐ BỔ SUNG: thêm dòng mới =====
+  const addAttr = function(name, value){
+    if (!attrWrap) return;
+    const row = document.createElement('div');
+    row.className = 'flex gap-2';
+    row.innerHTML =
+      '<input placeholder="Tên thuộc tính (VD: Xuất xứ)" class="attrName flex-1 border px-3 py-2 rounded"/>' +
+      '<input placeholder="Giá trị (VD: Đài Loan)" class="attrValue flex-1 border px-3 py-2 rounded"/>' +
+      '<button type="button" class="removeAttr text-red-500 text-sm px-2">Xoá</button>';
+
+    if (name !== undefined) row.querySelector('.attrName').value = name;
+    if (value !== undefined) row.querySelector('.attrValue').value = value;
+
+    row.querySelector('.removeAttr').onclick = function(){
+      row.remove();
+      markDirty();
+    };
+
+    attrWrap.appendChild(row);
+  };
+
   document.getElementById('addColumnBtn')?.addEventListener('click', addColumn);
   document.getElementById('addRowBtn')?.addEventListener('click', addRow);
   document.getElementById('addFaqBtn')?.addEventListener('click', addFaq);
+  document.getElementById('addAttrBtn')?.addEventListener('click', function(){ addAttr(); markDirty(); });
 
-  // ===== PREFILL dữ liệu cũ (spec + faq) =====
+  // ===== PREFILL dữ liệu cũ (spec + faq + attributes) =====
   function renderSpecAndFaq() {
     try {
       const specData = JSON.parse(specTableInput?.value || 'null');
       const faqData = JSON.parse(faqInput?.value || '[]');
+      const attrData = JSON.parse(attrInput?.value || '[]');
 
       if (specColumnsWrap) specColumnsWrap.innerHTML = '';
       if (specRowsWrap) specRowsWrap.innerHTML = '';
       if (faqWrap) faqWrap.innerHTML = '';
+      if (attrWrap) attrWrap.innerHTML = '';
 
       if (specData) {
         (specData.columns || []).forEach(function(col){
@@ -700,12 +756,17 @@ export default async function EditProductPage({ params }: Props) {
         faqWrap?.appendChild(div);
       });
 
+      // 🔥 prefill thông số bổ sung
+      attrData.forEach(function(a){
+        addAttr(a.name || '', a.value || '');
+      });
+
     } catch (e) {
       console.log("Render error:", e);
     }
   }
 
-  // ===== SUBMIT: đóng gói spec + faq trước khi gửi =====
+  // ===== SUBMIT: đóng gói spec + faq + attributes trước khi gửi =====
   if (form) {
     form.addEventListener('submit', function(){
       dirty = false;
@@ -739,6 +800,20 @@ export default async function EditProductPage({ params }: Props) {
 
       if (faqInput) {
         faqInput.value = JSON.stringify(faq);
+      }
+
+      // 🔥 thông số bổ sung
+      const attrs = Array.from(attrWrap?.children || [])
+        .map(function(row){
+          return {
+            name: row.querySelector('.attrName')?.value?.trim() || '',
+            value: row.querySelector('.attrValue')?.value?.trim() || '',
+          };
+        })
+        .filter(function(a){ return a.name && a.value; });
+
+      if (attrInput) {
+        attrInput.value = JSON.stringify(attrs);
       }
     });
   }

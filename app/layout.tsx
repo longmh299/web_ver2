@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import HeaderShell from "@/components/HeaderShell";
 import CallCTA from "@/components/CallCTA";
+import GoogleAnalytics from "@/components/Googleanalytics";
 
 export const metadata: Metadata = {
   title: "MCBROTHER",
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         suppressHydrationWarning
         className="min-h-screen bg-surface text-gray-900 antialiased selection:bg-primary/10 selection:text-primary"
       >
+        <GoogleAnalytics />
         <HeaderShell />
 
         {children}

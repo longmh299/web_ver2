@@ -67,7 +67,7 @@ export default async function ProductsPage({
   const pages = Math.max(1, Math.ceil(total / take));
 
   return (
-    <div className="mx-auto max-w-6xl px-3 md:px-6 space-y-5">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">

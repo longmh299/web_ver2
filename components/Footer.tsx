@@ -68,8 +68,8 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* BỘ CÔNG THƯƠNG */}
-          <img src="/images/bo-cong-thuong.png" className="h-12" />
+         {/* BỘ CÔNG THƯƠNG */}
+          {/* <img src=" /images/bo-cong-thuong.png" className="h-12" /> */}
         </div>
 
         {/* DANH MỤC */}
